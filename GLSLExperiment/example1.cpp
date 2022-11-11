@@ -9,7 +9,7 @@ typedef Angel::vec4 point4;
 const int NumPoints = 36; //(6 faces)(2 triangles/face)
 point4 points[NumPoints];
 vec3 normals[NumPoints];
-
+color4 colors[NumPoints];
 // Vertices of a unit cube centered at origin, sides aligned with axes
 point4 vertices[8] = {
 						point4(-0.5, -0.5, 0.5, 1.0),
@@ -90,14 +90,14 @@ void init(void)
 	glEnableVertexAttribArray(vNormal);
 	glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(points)));
 	// Initialize shader lighting parameters
-	point4 light_position(0, 0, -1, 0.0);
+	point4 light_position(0, 0, 1, 0.0);
 	color4 light_ambient(0.2, 0.2, 0.2, 1.0);
 	color4 light_diffuse(1.0, 1.0, 1.0, 1.0);
 	color4 light_specular(1.0, 1.0, 1.0, 1.0);
 	color4 material_ambient(1.0, 0.0, 1.0, 1.0);
 	color4 material_diffuse(1.0, 0.8, 0.0, 1.0);
 	color4 material_specular(1.0, 0.8, 0.0, 1.0);
-	float material_shininess = 80;
+	float material_shininess = 100;
 	color4 ambient_product = light_ambient * material_ambient;
 	color4 diffuse_product = light_diffuse * material_diffuse;
 	color4 specular_product = light_specular * material_specular;
@@ -119,27 +119,27 @@ void init(void)
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
 //----------------------------------------------------------------------
-void matban() {
+void ban4chan() {
 	mat4 matban = Scale(1.2, 0.02, 0.6);
 	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * matban);
 	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
-}
-void chan1() {
+
+
 	mat4 chan1 = Translate(-.57, -.41, .27) * Scale(.06, .8, .06);
 	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * chan1);
 	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
-}
-void chan2() {
+
+
 	mat4 chan2 = Translate(-.57, -.41, -.27) * Scale(.06, .8, .06);
 	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * chan2);
 	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
-}
-void chan3() {
+
+
 	mat4 chan3 = Translate(.57, -.41, -.27) * Scale(.06, .8, .06);
 	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * chan3);
 	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
-}
-void chan4() {
+
+
 	mat4 chan4 = Translate(.57, -.41, .27) * Scale(.06, .8, .06);
 	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * chan4);
 	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
@@ -185,21 +185,86 @@ void hopTu() {
 	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * cuaTu);
 	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
 }
+void keSach() {
+	//xương cạnh trái kệ sách
+	mat4 xuongDoc1 = Translate(-.59,.51,-.20) * Scale(.02, 1, .2);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * xuongDoc1);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//xương cạnh phải
+	mat4 xuongDoc2 = Translate(.59, .51, -.20) * Scale(.02, 1, .2);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * xuongDoc2);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//tấm chắn sau kệ
+	//xương ngang trên cùng
+	mat4 xuongNgang1 = Translate(0, .91, -.20) * Scale(1.16,.02,.2);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * xuongNgang1);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//xương ngang thứ 2
+	mat4 xuongNgang2 = Translate(0, .66, -.20) * Scale(1.16, .02, .2);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * xuongNgang2);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//xương ngang thứ 3
+	mat4 xuongNgang3 = Translate(0, .41, -.2) * Scale(1.16, .02, .2);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * xuongNgang3);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//tấm nối xương 1 - 2 
+	mat4 tamNoi1_2 = Translate(0, .785, -.2) * Scale(.02,.23,.2);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamNoi1_2);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//tủ mini
+	//hộp tủ sau
+	mat4 hopTuSau = Translate(0, .535, -.29) * Scale(.31, .23, .02);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * hopTuSau);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//hộp tủ trái
+	mat4 hopTuTrai = Translate(-.15, .535, -.2) * Scale(.01, .23, .19);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * hopTuTrai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//hộp tủ phai
+	mat4 hopTuPhai = Translate(.15, .535, -.2) * Scale(.01, .23, .19);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * hopTuPhai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//cua tu
+	mat4 cuaTu = Translate(.155, .535, -.1)*RotateY(value[1])*Translate(-.165,0,0) * Scale(.31, .23, .01);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * cuaTu);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+}
+
 void table() {
-	matban();
-	chan1();
-	chan2();
-	chan3();
-	chan4();
+	ban4chan();
 	nganKeo();
 	hopTu();
+	keSach();
+}
+void keTV() {
+	keTu();
+	tuKinh();
+}
+void keTu() {
+	//phần kệ dưới
+	mat4 cuaTu = Translate(.155, .535, -.1) * RotateY(value[1]) * Translate(-.165, 0, 0) * Scale(.31, .23, .01);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * cuaTu);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+}
+void tuKinh() {
+
 }
 void cameraController() {
 	const vec3 cameraPos(cameraMove[0], cameraMove[1], cameraMove[2]);
-	model_view = (Translate(-cameraPos) *
+	model_view = Translate(-cameraPos) *
 		RotateX(Theta[0]) *
 		RotateY(Theta[1]) *
-		RotateZ(Theta[2]));
+		RotateZ(Theta[2]);
 }
 
 
@@ -210,7 +275,8 @@ void display(void)
 	cameraController();
 
 	//draw model
-	table();
+	//table();
+	keTV();
 
 	glutSwapBuffers();
 }
@@ -252,6 +318,14 @@ void keyboard(unsigned char key, int x, int y)
 	case 'R':
 		Theta[2] += 5;
 		if (Theta[2] > 360) Theta[2] -= 360;
+		glutPostRedisplay();
+		break;
+	case 'u':
+		cameraMove[1] += 0.2;
+		glutPostRedisplay();
+		break;
+	case 'U':
+		cameraMove[1] -= 0.2;
 		glutPostRedisplay();
 		break;
 	case 'd': cameraMove[0] += 0.2;
@@ -305,7 +379,7 @@ int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(512, 512);
+	glutInitWindowSize(650, 650);
 	glutInitWindowPosition(350, 100);
 	glutCreateWindow("Draw an object");
 
