@@ -245,19 +245,158 @@ void table() {
 	hopTu();
 	keSach();
 }
-void keTV() {
-	keTu();
-	tuKinh();
-}
+
 void keTu() {
 	//phần kệ dưới
-	mat4 cuaTu = Translate(.155, .535, -.1) * RotateY(value[1]) * Translate(-.165, 0, 0) * Scale(.31, .23, .01);
-	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * cuaTu);
+	//mặt trên kệ
+	mat4 matTren = Scale(2, .02, .6);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * matTren);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	// hộp tủ sau
+	mat4 hopTuSau = Translate(0,-.24,-.29) * Scale(1.96,.46,.02);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * hopTuSau);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//hộp tủ trái
+	mat4 hopTuTrai = Translate(-.99,-.24,0) * Scale(.02,.46,.6);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * hopTuTrai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//hộp tủ phải
+	mat4 hopTuPhai = Translate(.99, -.24, 0) * Scale(.02, .46, .6);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * hopTuPhai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//mặt đáy kệ
+	mat4 matDay = Translate(0,-.47,0) * Scale(2,.02,.6);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * matDay);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tấm giữa ngang
+	mat4 tamGiuaNgang = Translate(0, -.24, 0) * Scale(2, .02, .6);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamGiuaNgang);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tấm dọc 1
+	mat4 tamDoc1 = Translate(-.40,-.12,.02) * Scale(.02,.22,.58);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamDoc1);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tấm dọc 2
+	mat4 tamDoc2 = Translate(.40, -.12, .02) * Scale(.02, .22, .58);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamDoc2);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tấm dọc 3
+	mat4 tamDoc3 = Translate(-.5, -.36, .02) * Scale(.02, .21, .58);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamDoc3);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tấm dọc 4
+	mat4 tamDoc4 = Translate(0, -.36, .02) * Scale(.02, .21, .58);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamDoc4);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tấm dọc 5
+	mat4 tamDoc5 = Translate(.5, -.36, .02) * Scale(.02, .21, .58);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamDoc5);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	
+}
+void ngan_keo() {
+	//ngan keo 
+	mat4 nganKeo1 = Translate(-.75, -.45, 0) * Translate(0, 0, value[0]) * Scale(.47, .02, .58);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * nganKeo1);
 	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
 
+	mat4 nganKeo2 = Translate(-.25, -.45, 0) * Translate(0, 0, value[0]) * Scale(.47, .02, .58);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * nganKeo2);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 nganKeo3 = Translate(.25, -.45, 0) * Translate(0, 0, value[0]) * Scale(.47, .02, .58);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * nganKeo3);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 nganKeo4 = Translate(.75, -.45, 0) * Translate(0, 0, value[0]) * Scale(.47, .02, .58);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * nganKeo4);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//cua keo
+	mat4 cuaKeo1 = Translate(-.75, -.36, .29) * Translate(0, 0, value[0]) * Scale(.49, .25, .02);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * cuaKeo1);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 cuaKeo2 = Translate(-.25, -.36, .29) * Translate(0, 0, value[0]) * Scale(.49, .25, .02);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * cuaKeo2);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 cuaKeo3 = Translate(.25, -.36, .29) * Translate(0, 0, value[0]) * Scale(.49, .25, .02);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * cuaKeo3);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 cuaKeo4 = Translate(.75, -.36, .29) * Translate(0, 0, value[0]) * Scale(.49, .25, .02);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * cuaKeo4);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
 }
 void tuKinh() {
+	//xuong doc 1
+	mat4 xuongDoc1 = Translate(-.99,.61,-.15) * Scale(.02, 1.2, .3);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * xuongDoc1);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//xuong doc 2
+	mat4 xuongDoc2 = Translate(-.63, .61, -.15) * Scale(.02, 1.2, .3);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * xuongDoc2);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//xuong doc 3
+	mat4 xuongDoc3 = Translate(.63, .61, -.15) * Scale(.02, 1.2, .3);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * xuongDoc3);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//xuong doc 4
+	mat4 xuongDoc4 = Translate(.99, .61, -.15) * Scale(.02, 1.2, .3);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * xuongDoc4);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//xuong doc sau trai
+	mat4 xuongDoc5 = Translate(-.81,.61,-.29) * Scale(.34, 1.2, .02);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * xuongDoc5);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//xuong doc sau phai
+	mat4 xuongDoc6 = Translate(.81, .61, -.29) * Scale(.34, 1.2, .02);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * xuongDoc6);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	
+	//tam ngang 1
+	mat4 tamNgang1 = Translate(-.81,1.22,-.15) * Scale(.38, .02, .3);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamNgang1);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
 
+	//tam ngang 2
+	mat4 tamNgang2 = Translate(.81, 1.22, -.15) * Scale(.38, .02, .3);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamNgang2);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tam ngang 3
+	mat4 tamNgang3 = Translate(-.81, .92, -.15) * Scale(.34, .01, .28);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamNgang3);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tam ngang 4
+	mat4 tamNgang4 = Translate(.81, .92, -.15) * Scale(.34, .01, .28);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamNgang4);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tam ngang 5
+	mat4 tamNgang5 = Translate(-.81, .62, -.15) * Scale(.34, .01, .28);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamNgang5);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tam ngang 6
+	mat4 tamNgang6 = Translate(.81, .62, -.15) * Scale(.34, .01, .28);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamNgang6);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tam ngang 7
+	mat4 tamNgang7 = Translate(-.81, .32, -.15) * Scale(.34, .01, .28);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamNgang7);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tam ngang 8
+	mat4 tamNgang8 = Translate(.81, .32, -.15) * Scale(.34, .01, .28);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamNgang8);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//tam ngang giua
+	mat4 tamNgangGiua = Translate(0,1.1,-.15) * Scale(1.28, .02, .2);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tamNgangGiua);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+}
+
+void keTV() {
+	keTu();
+	ngan_keo();
+	tuKinh();
 }
 void cameraController() {
 	const vec3 cameraPos(cameraMove[0], cameraMove[1], cameraMove[2]);
