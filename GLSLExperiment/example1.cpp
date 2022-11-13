@@ -28,7 +28,7 @@ GLfloat eyeDistance = -1;
 GLfloat cameraMove[3] = { 0,1.5,eyeDistance };
 // Model-view and projection matrices uniform location
 GLuint modelViewLoc, projectionLoc;
-mat4 model_view,table_view,keTV_view,tuCao_view,tuTreo_view;
+mat4 model_view,table_view,keTV_view,tuCao_view,tuTreo_view,tuQuanAo_view;
 GLfloat value[] = { 0,0,0,0 };
 //----------------------------------------------------------------------
 // quad generates two triangles for each face and assigns colors
@@ -535,6 +535,74 @@ void tuTreo() {
 	tuTreo_phanTinh();
 	tuTreo_phanDong();
 }
+void tuQuanAo_phanTinh() {
+	mat4 tuQuanAo_hopTrai = Translate(-.595, 1.025, 0) * Scale(.01, 1.94, .5);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_hopTrai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuQuanAo_hopPhai = Translate(.595, 1.025, 0) * Scale(.01, 1.94, .5);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_hopPhai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuQuanAo_tamGiua = Translate(-.2, 1.025, 0) * Scale(.01, 1.94, .5);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_tamGiua);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuQuanAo_dayTu = Translate(0, .03, 0) * Scale(1.2, .05, .5);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_dayTu);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuQuanAo_nocTu = Translate(0, 1.99, 0) * Scale(1.2, .01, .5);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_nocTu);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuQuanAo_matSau = Translate(0, 1.025, -.25) * Scale(1.18, 1.94, .01);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_matSau);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//tấm ngang nóc dài
+	mat4 tuQuanAo_tamNgang = Translate(0,1.65, 0) * Scale(1.18, .01, .5);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_tamNgang);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//các tấm ngang hộp tủ trái
+	mat4 tuQuanAo_tamNgang1 = Translate(-.4, .43, 0) * Scale(.4, .01, .5);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_tamNgang1);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuQuanAo_tamNgang2 = Translate(-.4, .83, 0) * Scale(.4, .01, .5);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_tamNgang2);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuQuanAo_tamNgang3 = Translate(-.4, 1.23, 0) * Scale(.4, .01, .5);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_tamNgang3);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//đòn treo quần áo
+	mat4 tuQuanAo_macTreo = Translate(.2, 1.6, 0) * Scale(.8, .01, .01);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_macTreo);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+}
+void tuQuanAo_phanDong() {
+	//cánh cửa hộp tủ trái
+	mat4 tuQuanAo_cuaHopTrai = Translate(-.6, 1.025, .25)*RotateY(-value[1])*Translate(.2,0,0) * Scale(.39, 1.94, .01);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_cuaHopTrai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+	//2 cánh tủ chính
+	mat4 tuQuanAo_cuaTrai = Translate(-.2, 1.025, .25) * RotateY(-value[1]) * Translate(.2, 0, 0) * Scale(.39, 1.94, .01);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_cuaTrai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuQuanAo_cuaPhai = Translate(.595, 1.025, .25) * RotateY(value[1]) * Translate(-.2, 0, 0) * Scale(.39, 1.94, .01);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuQuanAo_view * tuQuanAo_cuaPhai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+}
+void tuQuanAo() {
+	// cao 2m rộng 1m2, sâu 50
+	tuQuanAo_view = Translate(1, 0, 2.5) * RotateY(180);
+	tuQuanAo_phanTinh();
+	tuQuanAo_phanDong();
+}
 void ground() {
 	mat4 ground =Scale(3, .01, 10);
 	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * ground);
@@ -556,11 +624,12 @@ void display(void)
 	cameraController();
 
 	//draw model
-	ground(); //sàn
+	//ground(); //sàn
 	table();	//bàn học
 	keTV();		//kệ tivi
 	tuCaoDon(); //tủ cao 
 	tuTreo();	//tủ treo
+	tuQuanAo();
 	glutSwapBuffers();
 }
 //----------------------------------------------------------------------
