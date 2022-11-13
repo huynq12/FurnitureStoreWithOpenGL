@@ -28,7 +28,7 @@ GLfloat eyeDistance = -1;
 GLfloat cameraMove[3] = { 0,1.5,eyeDistance };
 // Model-view and projection matrices uniform location
 GLuint modelViewLoc, projectionLoc;
-mat4 model_view,table_view,keTV_view,tuCao_view;
+mat4 model_view,table_view,keTV_view,tuCao_view,tuTreo_view;
 GLfloat value[] = { 0,0,0,0 };
 //----------------------------------------------------------------------
 // quad generates two triangles for each face and assigns colors
@@ -401,7 +401,7 @@ void keTV() {
 	keTV_ngan_keo();
 	tuKinh();
 }
-void phanTinh() {
+void tuCao_phanTinh() {
 	//hộp tủ sau
 	mat4 tuCao_hopTuSau = Translate(0,0,-.175) * Scale(0.4, 2, .02);
 	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view *tuCao_view * tuCao_hopTuSau);
@@ -437,7 +437,7 @@ void phanTinh() {
 	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuCao_view * tuCao_tamNgang2);
 	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
 }
-void phanDong() {
+void tuCao_phanDong() {
 	//ngăn kéo
 	mat4 tuCao_nganKeo1 = Translate(0, -.63, 0)*Translate(0,0,value[0]) * Scale(.36, .02, .35);
 	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuCao_view * tuCao_nganKeo1);
@@ -482,8 +482,58 @@ void phanDong() {
 }
 void tuCaoDon() {
 	tuCao_view = Translate(0, 1, 0)*RotateY(90);
-	phanTinh();
-	phanDong();
+	tuCao_phanTinh();
+	tuCao_phanDong();
+}
+void tuTreo_phanTinh()
+{
+	mat4 tuTreo_hopTuTrai = Translate(-.35,.4,0) * Scale(.01, .8, .4);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view *tuTreo_view* tuTreo_hopTuTrai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuTreo_hopTuPhai = Translate(.35, .4, 0) * Scale(.01, .8, .4);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuTreo_view * tuTreo_hopTuPhai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuTreo_hopDay = Scale(.7, .01, .4);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuTreo_view * tuTreo_hopDay);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuTreo_hopTuSau = Translate(0, .4, -.2) * Scale(.7, .8, .01);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuTreo_view * tuTreo_hopTuSau);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuTreo_hopTuTren = Translate(0, .8,0) * Scale(.7, .01, .4);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuTreo_view * tuTreo_hopTuTren);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuTreo_tamNoiNgang = Translate(0, .5, 0) * Scale(.69, .01, .39);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuTreo_view * tuTreo_tamNoiNgang);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuTreo_tamNoiDoc = Translate(0, .25, -.045) * Scale(.01, .5, .3);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuTreo_view * tuTreo_tamNoiDoc);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+}
+void tuTreo_phanDong() {
+	mat4 tuTreo_cuaTrai = Translate(-.35, .25, 0.2)*RotateY(-value[1])*Translate(.17,0,0) * Scale(.35, .5, .01);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuTreo_view * tuTreo_cuaTrai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	mat4 tuTreo_cuaPhai = Translate(.35, .25, 0.2) * RotateY(value[1]) * Translate(-.17,0,0) * Scale(.35, .5, .01);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuTreo_view * tuTreo_cuaPhai);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+
+	//cửa lật lên trên
+	mat4 tuTreo_cuaLat = Translate(0, .8, 0.2) * RotateX(-value[1])*Translate(0,-.15,0) * Scale(.69, .3, .01);
+	glUniformMatrix4fv(modelViewLoc, 1, GL_TRUE, model_view * tuTreo_view * tuTreo_cuaLat);
+	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+}
+void tuTreo() {
+	// cao 80 rộng 70 sâu 40
+	tuTreo_view = Translate(1, 1, -3);
+	tuTreo_phanTinh();
+	tuTreo_phanDong();
 }
 void ground() {
 	mat4 ground =Scale(3, .01, 10);
@@ -506,10 +556,11 @@ void display(void)
 	cameraController();
 
 	//draw model
-	ground();
-	table();
-	keTV();
-	tuCaoDon();
+	ground(); //sàn
+	table();	//bàn học
+	keTV();		//kệ tivi
+	tuCaoDon(); //tủ cao 
+	tuTreo();	//tủ treo
 	glutSwapBuffers();
 }
 //----------------------------------------------------------------------
