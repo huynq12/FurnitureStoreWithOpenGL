@@ -5,10 +5,11 @@ in vec4 vColor;
 
 out vec4 color;
 uniform vec4 ambientObject, diffuseObject, specularObject;
-uniform mat4 ModelView;
-uniform mat4 Projection;
+
 uniform vec4 LightPosition;
 uniform float Shininess;
+uniform mat4 ModelView;
+uniform mat4 Projection;
 void main()
 {
 	// Transform vertex position into eye coordinates
@@ -28,7 +29,7 @@ void main()
 	float Ks = pow( max(dot(N, H), 0.0), Shininess );
 	vec4 specular = Ks * specularObject;
 	if( dot(L, N) < 0.0 ) specular = vec4(0.0, 0.0, 0.0, 1.0);
-	gl_Position = Projection * ModelView * vPosition;
+	gl_Position = Projection * View * Model * vPosition / vPosition.w;
 	color = ambient + diffuse + specular;
 	color.a = 1.0;
 	//color = vColor;
