@@ -1,12 +1,8 @@
-﻿// Display a rotating cube with lighting
-//
-// Light and material properties are sent to the shader as uniform
-// variables. Vertex positions and normals are sent after each
-// rotation.
+﻿
 #include "Angel.h"
 typedef Angel::vec4 color4;
 typedef Angel::vec4 point4;
-const int NumPoints = 36; //(6 faces)(2 triangles/face)
+const int NumPoints = 36;
 point4 points[NumPoints];
 vec3 normals[NumPoints];
 color4 colors[NumPoints];
@@ -23,7 +19,6 @@ point4 vertices[8] = {
 };
 // Array of rotation angles (in degrees) for each coordinate axis
 
-GLfloat Theta[3] = { 0,0,0 };
 
 // Model-view and projection matrices uniform location
 GLuint viewLoc,modelLoc, projectionLoc;
@@ -616,9 +611,9 @@ void tuQuanAo() {
 // sàn nhà
 void ground() {
 	
-	mat4 ground =Scale(3, .01, 10);
-	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * ground);
-	glDrawArrays(GL_TRIANGLES, 0, NumPoints);
+		mat4 ground =Scale(3, .01, 10);
+		glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * ground);
+		glDrawArrays(GL_TRIANGLES, 0, NumPoints);
 }
 
 
@@ -626,16 +621,22 @@ void ground() {
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+	mat4 view = LookAt(eye, at, up);
+	glUniformMatrix4fv(viewLoc, 1, GL_TRUE,view);
+
+	mat4 p = Frustum(l, r, bottom, top, zNear, zFar);
+	glUniformMatrix4fv(projectionLoc, 1, GL_TRUE,p);
+
 
 	//draw model
-	//ground(); //sàn
-	table();	//bàn học
+	ground(); //sàn
+	//table();	//bàn học
 	//keTV();		//kệ tivi
 	//tuCaoDon(); //tủ cao 
 	//tuTreo();	//tủ treo
 	//tuQuanAo();  //tủ quần áo
 	glutSwapBuffers();
+
 }
 //----------------------------------------------------------------------
 
@@ -739,12 +740,7 @@ void keyboard(unsigned char key, int x, int y)
 void reshape(int width, int height)
 {
 	glViewport(0, 0, width, height);
-	mat4 mv = LookAt(eye, at, up);
-	glUniformMatrix4fv(viewLoc, 1, GL_TRUE, mv);
-
-
-	mat4 projection = Perspective(100, GLfloat(width) / height, zNear, zFar);
-	glUniformMatrix4fv(projectionLoc, 1, GL_TRUE, projection);
+	
 }
 //----------------------------------------------------------------------
 int main(int argc, char** argv)
@@ -764,6 +760,5 @@ int main(int argc, char** argv)
 	
 	glutMainLoop();
 
-	
 	return 0;
 }
