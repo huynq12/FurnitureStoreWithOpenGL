@@ -5,7 +5,7 @@ in vec4 vColor;
 
 out vec4 color;
 
-uniform vec4 ambientObject, diffuseObject, specularObject;
+uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;
 uniform vec4 LightPosition;
 uniform float Shininess;
 
@@ -25,11 +25,11 @@ void main()
 	vec3 N = normalize( View * Model *vec4(vNormal, 0.0) ).xyz;
 
 	// Compute terms in the illumination equation
-	vec4 ambient = ambientObject;
+	vec4 ambient = AmbientProduct;
 	float Kd = max( dot(L, N), 0.0 );
-	vec4 diffuse = Kd * diffuseObject;
+	vec4 diffuse = Kd * DiffuseProduct;
 	float Ks = pow( max(dot(N, H), 0.0), Shininess );
-	vec4 specular = Ks * specularObject;
+	vec4 specular = Ks * SpecularProduct;
 	if( dot(L, N) < 0.0 ) specular = vec4(0.0, 0.0, 0.0, 1.0);
 	gl_Position = Projection * View * Model * vPosition / vPosition.w;
 	color = ambient + diffuse + specular;
