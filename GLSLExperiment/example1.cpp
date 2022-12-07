@@ -29,10 +29,10 @@ color4 light_ambient(0.2, 0.2, 0.2, 1.0);
 color4 light_diffuse(1.0, 1.0, 1.0, 1.0);
 color4 light_specular(1.0, 1.0, 1.0, 1.0);
 
-/*color4 material_ambient(1.0, 0.0, 1.0, 1.0);
-color4 material_diffuse(1.0, 0.8, 0.0, 1.0);
-color4 material_specular(1.0, 0.8, 0.0, 1.0);*/
-float material_shininess = 150;
+color4 material_ambient;
+color4 material_diffuse;
+color4 material_specular;
+float material_shininess;
 color4 ambient_product;
 color4 diffuse_product;
 color4 specular_product;
@@ -117,7 +117,7 @@ void initCylinder()
 	for (int i = 1; i <= 8; i++)
 	{
 		float radius = 0.5;
-		float angle = (i - 1) * 45.0 / 360 * 2 * M_PI;
+		float angle = (i - 1) * 45 / 360 * 2 * M_PI;
 		float x = radius * cosf(angle);
 		float z = radius * sinf(angle);
 		verticesOfCylinder[i * 2 - 1] = point4(x, top_heart, z, 1);
@@ -240,11 +240,32 @@ void initGPUBuffer(void)
 
 
 }
-void processLight(color4 material_ambient, color4 material_diffuse, color4 material_specular) {
+float convertColor(float x)
+{
+	return x / 255;
+}
+color4 RGBA(int R, int G, int B,int A)
+{
+	return color4(convertColor(R), convertColor(G), convertColor(B), convertColor(A));
+}
+void processLight() {
 	
 	 ambient_product = light_ambient * material_ambient;
 	 diffuse_product = light_diffuse * material_diffuse;
 	 specular_product = light_specular * material_specular;
+	 glUniform4fv(glGetUniformLocation(program, "AmbientProduct"), 1, ambient_product);
+	 glUniform4fv(glGetUniformLocation(program, "DiffuseProduct"), 1, diffuse_product);
+	 glUniform4fv(glGetUniformLocation(program, "SpecularProduct"), 1, specular_product);
+	 glUniform4fv(glGetUniformLocation(program, "LightPosition"), 1, light_position);
+	 glUniform1f(glGetUniformLocation(program, "Shininess"), material_shininess);
+
+}
+void initMaterial(color4 a, color4 b, color4 c, float d) {
+	material_ambient = a;
+	material_diffuse = b;
+	material_specular = c;
+	material_shininess = d;
+	processLight();
 }
 
 void shaderSetup() {
@@ -265,11 +286,7 @@ void shaderSetup() {
 	glEnableVertexAttribArray(loc_vNormal);
 	glVertexAttribPointer(loc_vNormal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(arrVertices) + sizeof(arrColors)));
 	// Initialize shader lighting parameters
-	glUniform4fv(glGetUniformLocation(program, "AmbientProduct"), 1, ambient_product);
-	glUniform4fv(glGetUniformLocation(program, "DiffuseProduct"), 1, diffuse_product);
-	glUniform4fv(glGetUniformLocation(program, "SpecularProduct"), 1, specular_product);
-	glUniform4fv(glGetUniformLocation(program, "LightPosition"), 1, light_position);
-	glUniform1f(glGetUniformLocation(program, "Shininess"), material_shininess);
+
 	// Retrieve transformation uniform variable locations
 	view_loc = glGetUniformLocation(program, "View");
 	model_loc = glGetUniformLocation(program, "Model");
@@ -278,47 +295,44 @@ void shaderSetup() {
 	glShadeModel(GL_FLAT);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
-void drawCube(float x, float y, float z,mat4 model_pos)
+void drawCube(mat4 instance,mat4 localPos)
 {
-	mat4 instance = Scale(x, y, z);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * instance);
+	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * localPos * instance);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 }
-void drawCylinder(float x,float y,float z,mat4 model_pos)
+void drawCylinder(mat4 instance,mat4 localPos)
 {
-	mat4 instance = Scale(x, y, z);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * instance);
+	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model *localPos* instance);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
 }
 
 //----------------------------------------------------------------------
-
+color4 amb;
+color4 dif;
+color4 spe;
 //bàn gồm 4 chân
 void ban4chan() {
+	amb = RGBA(225,50,50,255);
+	dif = RGBA(80,80,80,255);
+	spe = RGBA(120,120,120, 255);
+	initMaterial(amb,dif,spe,1000);
+
 	//mặt bàn 1m2 x 60 x 2
 	mat4 matban = Scale(1.2, 0.02, 0.6);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model* table_pos * matban);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(matban, table_pos);
 
 	//4 chân 80 x 6 x 6
 	mat4 chan1 = Translate(-.57, -.41, .27) * Scale(.06, .8, .06);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * chan1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(chan1, table_pos);
 
 	mat4 chan2 = Translate(-.57, -.41, -.27) * Scale(.06, .8, .06);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * chan2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(chan2, table_pos);
 
 	mat4 chan3 = Translate(.57, -.41, -.27) * Scale(.06, .8, .06);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * chan3);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(chan3, table_pos);
 
 	mat4 chan4 = Translate(.57, -.41, .27) * Scale(.06, .8, .06);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * chan4);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(chan4, table_pos);
 }
 //ngăn kéo bàn học
 void nganKeo() {
@@ -419,11 +433,11 @@ void keSach() {
 
 void table() {
 	table_pos = Translate(-2.2, 0.81, 2.5)* RotateY(90);
-
+	//processLight((1,0,1), (1,0.8,0), (1,0.8,0),150);
 	ban4chan();
-	nganKeo();
-	hopTu();
-	keSach();
+	//nganKeo();
+	//hopTu();
+	//keSach();
 }
 
 void keTu() {
@@ -824,16 +838,16 @@ void display(void)
 	mat4 p = Frustum(l, r, bottom, top, zNear, zFar);
 	glUniformMatrix4fv(projection_loc, 1, GL_TRUE,p);
 
-	
+
 	//draw model
-	/*
-	phong(5,3.5,7,0.05); //bối cảnh cửa hàng rộng 5m, cao 3.5m, sâu 7m, tường dày 5cm
+	
+	//phong(5,3.5,7,0.05); //bối cảnh cửa hàng rộng 5m, cao 3.5m, sâu 7m, tường dày 5cm
 	table();	//bàn học
-	keTV();		//kệ tivi
-	tuCaoDon(); //tủ cao 
-	tuTreo();	//tủ treo
-	tuQuanAo();  //tủ quần áo
-	*/
+	//keTV();		//kệ tivi
+	//tuCaoDon(); //tủ cao 
+	//tuTreo();	//tủ treo
+	//tuQuanAo();  //tủ quần áo
+	
 	glutSwapBuffers();
 
 }
