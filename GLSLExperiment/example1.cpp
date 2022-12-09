@@ -6,11 +6,11 @@ const int numPointsOfCube = 36; //số điểm tạo hlp
 const int numPointsOfCylinder = 96; //số điểm tạo htru
 const int numPointsOfCircle = 192; //số điểm tạo htron
 //danh sach cac dinh tam giac
-point4 arrVertices[numPointsOfCube + numPointsOfCylinder + numPointsOfCircle];
+point4 arrVertices[numPointsOfCube + numPointsOfCylinder ];
 //danh sach cac color
-color4 arrColors[numPointsOfCube+ numPointsOfCylinder+ numPointsOfCircle];
+color4 arrColors[numPointsOfCube+ numPointsOfCylinder];
 //danh sach cac vector phap tuyen
-vec3 arrNormals[numPointsOfCube+ numPointsOfCylinder+ numPointsOfCircle];
+vec3 arrNormals[numPointsOfCube+ numPointsOfCylinder];
 //danh sach cac dinh cua hinh lap phuong
 point4 verticesOfCube[8];
 //danh sach cac color hlp
@@ -19,10 +19,7 @@ color4 colorsOfCube[8];
 point4 verticesOfCylinder[18];
 //danh sach cac color hlp
 color4 colorsOfCylinder[10];
-//danh sach cac dinh cua hinh tron
-point4 verticesOfCircle[5][8];
-//danh sach cac color hinh tron
-color4 colorsOfCircle[10];
+
 //cac bien anh sang mau
 point4 light_position(0, 2, 0, 0.0);
 color4 light_ambient(0.2, 0.2, 0.2, 1.0);
@@ -40,23 +37,19 @@ color4 specular_product;
 GLuint view_loc,model_loc, projection_loc,program;
 mat4 view,model,table_pos,keTV_pos,tuCao_pos,tuTreo_pos,tuQuanAo_pos;
 GLfloat value[] = { 0,0,0,0 };
-GLfloat theta[] = { 0,0,0,0 };
-GLfloat cameraRotate[] = { 90,0,0 };
-GLfloat cameraMove[] = {0,0,0};
+GLfloat cameraRotate[] = { 0,0,0 };
 //Lookat function
 GLfloat l = -0.5, r = 0.5, bottom = -0.5, top = 0.5, zNear = 0.5, zFar = 10;
 //camera controller 
-GLfloat eyePos[3] = { 0,1.7,5 };
 vec3 eye = vec3(0,2,5);
 vec3 at = vec3(0,0,0);
 vec3 up = vec3(0, 1, 0);
 GLfloat t = 0.05;
-//vec3 direction = normalize(vec3(cosf(DegreesToRadians*cameraRotate[0]) * abs(sinf(DegreesToRadians*cameraRotate[1])),
-//	cosf(DegreesToRadians*cameraRotate[1]),
-//	cosf(DegreesToRadians*cameraRotate[2]) * abs(sinf(DegreesToRadians*cameraRotate[1]))));
-//
-//vec3 cameraRight = normalize(cross(direction, up));
-//vec4 cameraUp = normalize(cross(cameraRight, direction));
+vec3 direction = normalize(vec3(cosf(DegreesToRadians*cameraRotate[0]) * abs(sinf(DegreesToRadians * cameraRotate[1])),
+	sinf(DegreesToRadians * cameraRotate[0]),
+	cosf(DegreesToRadians * cameraRotate[2]) * abs(cosf(DegreesToRadians * cameraRotate[1]))));
+vec3 cameraLeft = normalize(cross(direction, up));
+
 //----------------------------------------------------------------------
 // quad generates two triangles for each face and assigns colors
 // to the vertices
@@ -310,12 +303,13 @@ void drawCylinder(mat4 instance,mat4 localPos)
 color4 amb;
 color4 dif;
 color4 spe;
-//bàn gồm 4 chân
-void ban4chan() {
-	amb = RGBA(225,50,50,255);
-	dif = RGBA(80,80,80,255);
-	spe = RGBA(120,120,120, 255);
-	initMaterial(amb,dif,spe,1000);
+
+void table() {
+	table_pos = Translate(-2.2, 0.81, 2.5)* RotateY(90);
+	amb = RGBA(220, 150, 90, 1);
+	dif = RGBA(220, 150, 90, 1);
+	spe = RGBA(220, 150, 90, 1);
+	initMaterial(amb, dif, spe, 1000);
 
 	//mặt bàn 1m2 x 60 x 2
 	mat4 matban = Scale(1.2, 0.02, 0.6);
@@ -324,62 +318,46 @@ void ban4chan() {
 	//4 chân 80 x 6 x 6
 	mat4 chan1 = Translate(-.57, -.41, .27) * Scale(.06, .8, .06);
 	drawCube(chan1, table_pos);
-
 	mat4 chan2 = Translate(-.57, -.41, -.27) * Scale(.06, .8, .06);
 	drawCube(chan2, table_pos);
-
 	mat4 chan3 = Translate(.57, -.41, -.27) * Scale(.06, .8, .06);
 	drawCube(chan3, table_pos);
-
 	mat4 chan4 = Translate(.57, -.41, .27) * Scale(.06, .8, .06);
 	drawCube(chan4, table_pos);
-}
-//ngăn kéo bàn học
-void nganKeo() {
-	//54 x 2 x 60
-	// hộp tủ ngăn kéo bên trái
-	mat4 tuNganKeo = Translate(-.55, -.06, 0) * Scale(.02, .1, .48);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * tuNganKeo);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
-	//ngăn kéo chính
-	mat4 nganKeo = Translate(-.27, -.1, 0) * Translate(0, 0, value[0]) * Scale(.54, .02, .58);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * nganKeo);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//cửa ngăn kéo phía trước
-	mat4 cuaNganKeo = Translate(-.27, -.075, .28) * Translate(0, 0, value[0]) * Scale(.54, .15, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * cuaNganKeo);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-}
-void hopTu() {
 	//hộp bàn sau
 	mat4 tuBanSau = Translate(0, -.36, -.29) * Scale(1.08, .7, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * tuBanSau);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuBanSau, table_pos);
+	
+	//-------------------ngăn kéo 54 x 2 x 60--------------------------
+	// hộp tủ ngăn kéo bên trái
+	mat4 tuNganKeo = Translate(-.55, -.06, 0) * Scale(.02, .1, .48);
+	drawCube(tuNganKeo, table_pos);
+	//ngăn kéo chính
+	mat4 nganKeo = Translate(-.27, -.1, 0) * Translate(0, 0, value[0]) * Scale(.54, .02, .58);
+	drawCube(nganKeo, table_pos);
+	//cửa ngăn kéo phía trước
+	mat4 cuaNganKeo = Translate(-.27, -.075, .28) * Translate(0, 0, value[0]) * Scale(.54, .15, .02);
+	drawCube(cuaNganKeo, table_pos);
+	
+	//---------------hộp tủ -----------------
 	//hộp tủ bên phải
 	mat4 hopTuPhai = Translate(.55, -.36, 0) * Scale(.02, .7, .48);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * hopTuPhai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(hopTuPhai, table_pos);
 	//hộp tủ bên trái
 	mat4 hopTuTrai = Translate(0, -.36, 0) * Scale(.02, .7, .56);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * hopTuTrai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(hopTuTrai, table_pos);
 	//hộp tủ phía dưới 
 	mat4 hopTuDay = Translate(.27, -.7, 0) * Scale(.55, .02, .56);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * hopTuDay);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(hopTuDay, table_pos);
 	//cửa tủ có thể mở góc 90
 	mat4 cuaTu = Translate(.53, -.36, .29) * RotateY(value[1]) * Translate(-.27, 0, 0) * Scale(.55, .7, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * cuaTu);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-}
-void keSach() {
+	drawCube(cuaTu, table_pos);
+	//tay nắm cửa tủ
+	mat4 tayNam1 = Translate(0.1, -0.35, 0.3) * Scale(0.05, 0.05, 0.05);
+	drawCylinder(tayNam1, table_pos);
+
 	//xương cạnh trái kệ sách
-	mat4 xuongDoc1 = Translate(-.59,.51,-.20) * Scale(.02, 1, .2);
+	mat4 xuongDoc1 = Translate(-.59, .51, -.20) * Scale(.02, 1, .2);
 	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * xuongDoc1);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 
@@ -390,7 +368,7 @@ void keSach() {
 
 	//tấm chắn sau kệ
 	//xương ngang trên cùng
-	mat4 xuongNgang1 = Translate(0, .91, -.20) * Scale(1.16,.02,.2);
+	mat4 xuongNgang1 = Translate(0, .91, -.20) * Scale(1.16, .02, .2);
 	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * xuongNgang1);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 
@@ -405,39 +383,27 @@ void keSach() {
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 
 	//tấm nối xương 1 - 2 
-	mat4 tamNoi1_2 = Translate(0, .785, -.2) * Scale(.02,.23,.2);
+	mat4 tamNoi1_2 = Translate(0, .785, -.2) * Scale(.02, .23, .2);
 	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * tamNoi1_2);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 
 	//tủ mini
 	//hộp tủ sau
-	mat4 hopTuSau = Translate(0, .535, -.29) * Scale(.31, .23, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * hopTuSau);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	mat4 hopTuMiniSau = Translate(0, .535, -.29) * Scale(.31, .23, .02);
+	drawCube(hopTuMiniSau, table_pos);
 
 	//hộp tủ trái
-	mat4 hopTuTrai = Translate(-.15, .535, -.2) * Scale(.01, .23, .19);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * hopTuTrai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	mat4 hopTuMiniTrai = Translate(-.15, .535, -.2) * Scale(.01, .23, .19);
+	drawCube(hopTuMiniTrai, table_pos);
 
 	//hộp tủ phai
-	mat4 hopTuPhai = Translate(.15, .535, -.2) * Scale(.01, .23, .19);
+	mat4 hopTuMiniPhai = Translate(.15, .535, -.2) * Scale(.01, .23, .19);
 	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * hopTuPhai);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 
 	//cua tu
-	mat4 cuaTu = Translate(.155, .535, -.1)*RotateY(value[1])*Translate(-.165,0,0) * Scale(.31, .23, .01);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * cuaTu);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-}
-
-void table() {
-	table_pos = Translate(-2.2, 0.81, 2.5)* RotateY(90);
-	//processLight((1,0,1), (1,0.8,0), (1,0.8,0),150);
-	ban4chan();
-	//nganKeo();
-	//hopTu();
-	//keSach();
+	mat4 cuaTuMini = Translate(.155, .535, -.1) * RotateY(value[1]) * Translate(-.165, 0, 0) * Scale(.31, .23, .01);
+	drawCube(cuaTuMini, table_pos);
 }
 
 void keTu() {
@@ -797,9 +763,12 @@ void tuQuanAo() {
 
 //bối cảnh
 void phong(float width,float height,float depth,float wallWidth) {
+	amb = RGBA(190, 240, 240, 1);
+	dif = RGBA(190, 240, 240, 1);
+	spe = RGBA(190, 240, 240, 1);
+	initMaterial(amb, dif, spe, 1000);
 	mat4 ground = Scale(width, .01, depth);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * ground);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(ground, model);
 
 	//tường trái
 	mat4 wall1 =Translate(-width/2,height/2,0)* Scale(wallWidth, height, depth);
@@ -830,8 +799,8 @@ void phong(float width,float height,float depth,float wallWidth) {
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	at = vec3(cosf(DegreesToRadians *cameraRotate[0]),0,cosf(DegreesToRadians*cameraRotate[2])) + eye;
-	//at = direction + eye;
+	//at = vec3(cosf(DegreesToRadians *cameraRotate[0]),0,cosf(DegreesToRadians*cameraRotate[2])) + eye;
+	at = direction + eye;
 	view = RotateY(cameraRotate[1]) * LookAt(eye, at, up);
 	glUniformMatrix4fv(view_loc, 1, GL_TRUE, view );
 
@@ -840,8 +809,7 @@ void display(void)
 
 
 	//draw model
-	
-	//phong(5,3.5,7,0.05); //bối cảnh cửa hàng rộng 5m, cao 3.5m, sâu 7m, tường dày 5cm
+	phong(6,3.5,7,0.05); //bối cảnh cửa hàng rộng 5m, cao 3.5m, sâu 7m, tường dày 5cm
 	table();	//bàn học
 	//keTV();		//kệ tivi
 	//tuCaoDon(); //tủ cao 
@@ -862,15 +830,6 @@ void keyboard(unsigned char key, int x, int y)
 	case 'q': case 'Q':
 		exit(EXIT_SUCCESS);
 		break;
-	/*case 'x':
-		theta[0] += 2;
-		glutPostRedisplay();
-		break;
-	case 'X':
-		theta[0] -= 2;
-		glutPostRedisplay();
-		break;*/
-	
 	case 'y':
 		cameraRotate[1] += 5;
 		glutPostRedisplay();
@@ -880,39 +839,23 @@ void keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	
-	/*case 'd':
-		eye += cameraRight * 0.1;
-		glutPostRedisplay();
-		break;
-	case 'a': 
-		eye += -cameraRight * 0.1;
-		glutPostRedisplay();
-		break;
-	case 'w': 
-		eye += direction * 0.1;
-		break;
-	case 's': 
-		eye += -direction * 0.1;
-		glutPostRedisplay();
-		break;*/
-	case 'a':
-		eye += vec3(t, 0, 0);
-		glutPostRedisplay();
-		break;
-	case 'd':
-		eye += vec3(-t, 0, 0);
-		glutPostRedisplay();
-		break;
 	case 'w':
-		eye += vec3(0, 0, t);
-
+		eye -= direction;
 		glutPostRedisplay();
 		break;
 	case 's':
-		eye += vec3(0, 0, -t);
-
+		eye += direction ;
 		glutPostRedisplay();
 		break;
+	case 'a':
+		eye +=cameraLeft ;
+		glutPostRedisplay();
+		break;
+	case 'd':
+		eye -= cameraLeft;
+		glutPostRedisplay();
+		break;
+	
 	//control door 
 	case 'k':
 		value[0] += .05;
@@ -936,13 +879,9 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 		//reset view volumn
 	case ' ':
-		 eye = vec3(0, 1.7, 6);
-		 at = vec3(0, 1.5, 0);
-		 up = vec3(0, 1, 0);
-		theta[0] = 0;
-		theta[1] = 0;
-		theta[2] = 0;
-		cameraRotate[0] = 90;
+		eye = vec3(0, 2, 5);
+		at = vec3(0, 0, 0);
+		up = vec3(0, 1, 0);
 		glutPostRedisplay();
 		break;
 		
