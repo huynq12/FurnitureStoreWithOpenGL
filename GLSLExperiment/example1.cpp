@@ -890,7 +890,6 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 'w': 
 		eye += direction * 0.1;
-		glutPostRedisplay();
 		break;
 	case 's': 
 		eye += -direction * 0.1;
