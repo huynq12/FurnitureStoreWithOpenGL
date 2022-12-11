@@ -25,17 +25,17 @@ point4 light_position(0, 2, 0, 0.0);
 color4 light_ambient(0.2, 0.2, 0.2, 1.0);
 color4 light_diffuse(1.0, 1.0, 1.0, 1.0);
 color4 light_specular(1.0, 1.0, 1.0, 1.0);
-
-color4 material_ambient;
-color4 material_diffuse;
-color4 material_specular;
-float material_shininess;
 color4 ambient_product;
 color4 diffuse_product;
 color4 specular_product;
+
+float material_shininess;
+color4 material_ambient(1.0, 0.0, 1.0, 1.0);
+color4 material_diffuse(1.0, 0.8, 0.0, 1.0);
+color4 material_specular(1.0, 0.8, 0.0, 1.0);
 // Model-view and projection matrices uniform location
 GLuint view_loc,model_loc, projection_loc,program;
-mat4 view,model,table_pos,keTV_pos,tuCao_pos,tuTreo_pos,tuQuanAo_pos;
+mat4 view,model,table_pos,keTV_pos,tuCao_pos,tuTreo_pos,tuQuanAo_pos, banChuZ_pos;
 GLfloat value[] = { 0,0,0,0 };
 GLfloat cameraRotate[] = { 0,0,0 };
 //Lookat function
@@ -146,7 +146,7 @@ void sideOfCylinder(int a, int b, int c, int d, int color)
 	arrNormals[Index] = normal; arrColors[Index] = colorsOfCylinder[color]; arrVertices[Index] = verticesOfCylinder[d]; Index++;
 }
 
-void faceOfCylinder(int a, int b, int c, int color)
+void bottomTriange_Cylinder(int a, int b, int c, int color)
 {
 	vec4 u = verticesOfCylinder[b] - verticesOfCylinder[a];
 	vec4 v = verticesOfCylinder[c] - verticesOfCylinder[b];
@@ -175,33 +175,33 @@ void generateCylinder()
 
 	// 3x8
 	
-	faceOfCylinder(2, 17, 16, 9);
-	faceOfCylinder(16, 17, 14, 9);
-	faceOfCylinder(14, 17, 12, 9);
-	faceOfCylinder(12, 17, 10, 9);
-	faceOfCylinder(10, 17, 8, 9);
-	faceOfCylinder(8, 17, 6, 9);
-	faceOfCylinder(6, 17, 4, 9);
-	faceOfCylinder(4, 17, 2, 9);
-	/*faceOfCylinder(2, 17, 16, 8);
+	bottomTriange_Cylinder(2, 17, 16, 9);
+	bottomTriange_Cylinder(16, 17, 14, 9);
+	bottomTriange_Cylinder(14, 17, 12, 9);
+	bottomTriange_Cylinder(12, 17, 10, 9);
+	bottomTriange_Cylinder(10, 17, 8, 9);
+	bottomTriange_Cylinder(8, 17, 6, 9);
+	bottomTriange_Cylinder(6, 17, 4, 9);
+	bottomTriange_Cylinder(4, 17, 2, 9);
+	/*bottomTriange_Cylinder(2, 17, 16, 8);
 
 	for (int i = 6; i >=0; i--) {
-		faceOfCylinder(2 * i+4, 17, 2 * i + 2, 8);
+		bottomTriange_Cylinder(2 * i+4, 17, 2 * i + 2, 8);
 	}
 	for (int i = 0; i <= 6; i++) {
-		faceOfCylinder(2 * (i + 1) - 1, 0, 2 * (i + 1) + 1, 9);
+		bottomTriange_Cylinder(2 * (i + 1) - 1, 0, 2 * (i + 1) + 1, 9);
 	}
-	faceOfCylinder(15, 0, 1, 9);*/
+	bottomTriange_Cylinder(15, 0, 1, 9);*/
 
 	// 3x8
-	faceOfCylinder(1, 0, 3, 8);
-	faceOfCylinder(3, 0, 5, 8);
-	faceOfCylinder(5, 0, 7, 8);
-	faceOfCylinder(7, 0, 9, 8);
-	faceOfCylinder(9, 0, 11, 8);
-	faceOfCylinder(11, 0, 13, 8);
-	faceOfCylinder(13, 0, 15, 8);
-	faceOfCylinder(15, 0, 1, 8);
+	bottomTriange_Cylinder(1, 0, 3, 8);
+	bottomTriange_Cylinder(3, 0, 5, 8);
+	bottomTriange_Cylinder(5, 0, 7, 8);
+	bottomTriange_Cylinder(7, 0, 9, 8);
+	bottomTriange_Cylinder(9, 0, 11, 8);
+	bottomTriange_Cylinder(11, 0, 13, 8);
+	bottomTriange_Cylinder(13, 0, 15, 8);
+	bottomTriange_Cylinder(15, 0, 1, 8);
 
 	
 }
@@ -237,26 +237,30 @@ float convertColor(float x)
 {
 	return x / 255;
 }
-color4 RGBA(int R, int G, int B,int A)
+color4 RGBtoColor(int R, int G, int B)
 {
-	return color4(convertColor(R), convertColor(G), convertColor(B), convertColor(A));
+	return color4(convertColor(R), convertColor(G), convertColor(B));
 }
 void processLight() {
 	
-	 ambient_product = light_ambient * material_ambient;
-	 diffuse_product = light_diffuse * material_diffuse;
-	 specular_product = light_specular * material_specular;
-	 glUniform4fv(glGetUniformLocation(program, "AmbientProduct"), 1, ambient_product);
-	 glUniform4fv(glGetUniformLocation(program, "DiffuseProduct"), 1, diffuse_product);
-	 glUniform4fv(glGetUniformLocation(program, "SpecularProduct"), 1, specular_product);
-	 glUniform4fv(glGetUniformLocation(program, "LightPosition"), 1, light_position);
-	 glUniform1f(glGetUniformLocation(program, "Shininess"), material_shininess);
+	color4 ambient_product = light_ambient * material_ambient;
+	color4 diffuse_product = light_diffuse * material_diffuse;
+	color4 specular_product = light_specular * material_specular;
+
+	glUniform4fv(glGetUniformLocation(program, "AmbientProduct"), 1, ambient_product);
+	glUniform4fv(glGetUniformLocation(program, "DiffuseProduct"), 1, diffuse_product);
+	glUniform4fv(glGetUniformLocation(program, "SpecularProduct"), 1, specular_product);
+	glUniform4fv(glGetUniformLocation(program, "LightPosition"), 1, light_position);
+	glUniform1f(glGetUniformLocation(program, "Shininess"), material_shininess);
 
 }
+color4 materialColor;
+color4 reflexColor;
+color4 mirrorReflexColor;
 void initMaterial(color4 a, color4 b, color4 c, float d) {
 	material_ambient = a;
-	material_diffuse = b;
-	material_specular = c;
+	light_specular = b;
+	material_diffuse = c;
 	material_shininess = d;
 	processLight();
 }
@@ -278,7 +282,6 @@ void shaderSetup() {
 	GLuint loc_vNormal = glGetAttribLocation(program, "vNormal");
 	glEnableVertexAttribArray(loc_vNormal);
 	glVertexAttribPointer(loc_vNormal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(arrVertices) + sizeof(arrColors)));
-	// Initialize shader lighting parameters
 
 	// Retrieve transformation uniform variable locations
 	view_loc = glGetUniformLocation(program, "View");
@@ -300,35 +303,28 @@ void drawCylinder(mat4 instance,mat4 localPos)
 }
 
 //----------------------------------------------------------------------
-color4 amb;
-color4 dif;
-color4 spe;
 
-void table() {
-	table_pos = Translate(-2.2, 0.81, 2.5)* RotateY(90);
-	amb = RGBA(220, 150, 90, 1);
-	dif = RGBA(220, 150, 90, 1);
-	spe = RGBA(220, 150, 90, 1);
-	initMaterial(amb, dif, spe, 1000);
-
+void chanBan(float x, float y, float z) {
+	mat4 chan = Translate(x, y,z) * Scale(.06, .8, .06);
+	drawCube(chan, table_pos);
+}
+void table_ban4chan() {
 	//mặt bàn 1m2 x 60 x 2
 	mat4 matban = Scale(1.2, 0.02, 0.6);
 	drawCube(matban, table_pos);
 
 	//4 chân 80 x 6 x 6
-	mat4 chan1 = Translate(-.57, -.41, .27) * Scale(.06, .8, .06);
-	drawCube(chan1, table_pos);
-	mat4 chan2 = Translate(-.57, -.41, -.27) * Scale(.06, .8, .06);
-	drawCube(chan2, table_pos);
-	mat4 chan3 = Translate(.57, -.41, -.27) * Scale(.06, .8, .06);
-	drawCube(chan3, table_pos);
-	mat4 chan4 = Translate(.57, -.41, .27) * Scale(.06, .8, .06);
-	drawCube(chan4, table_pos);
+	chanBan(-.57, -.41, .27);
+	chanBan(-.57, -.41, -.27);
+	chanBan(.57, -.41, -.27);
+	chanBan(.57, -.41, .27);
+	
 	//hộp bàn sau
 	mat4 tuBanSau = Translate(0, -.36, -.29) * Scale(1.08, .7, .02);
 	drawCube(tuBanSau, table_pos);
-	
-	//-------------------ngăn kéo 54 x 2 x 60--------------------------
+}
+//-------------------ngăn kéo 54 x 2 x 60--------------------------
+void table_nganKeo() {
 	// hộp tủ ngăn kéo bên trái
 	mat4 tuNganKeo = Translate(-.55, -.06, 0) * Scale(.02, .1, .48);
 	drawCube(tuNganKeo, table_pos);
@@ -338,7 +334,8 @@ void table() {
 	//cửa ngăn kéo phía trước
 	mat4 cuaNganKeo = Translate(-.27, -.075, .28) * Translate(0, 0, value[0]) * Scale(.54, .15, .02);
 	drawCube(cuaNganKeo, table_pos);
-	
+}
+void table_hopTu() {
 	//---------------hộp tủ -----------------
 	//hộp tủ bên phải
 	mat4 hopTuPhai = Translate(.55, -.36, 0) * Scale(.02, .7, .48);
@@ -352,284 +349,199 @@ void table() {
 	//cửa tủ có thể mở góc 90
 	mat4 cuaTu = Translate(.53, -.36, .29) * RotateY(value[1]) * Translate(-.27, 0, 0) * Scale(.55, .7, .02);
 	drawCube(cuaTu, table_pos);
-	//tay nắm cửa tủ
-	mat4 tayNam1 = Translate(0.1, -0.35, 0.3) * Scale(0.05, 0.05, 0.05);
-	drawCylinder(tayNam1, table_pos);
-
+}
+void table_keSach() {
 	//xương cạnh trái kệ sách
 	mat4 xuongDoc1 = Translate(-.59, .51, -.20) * Scale(.02, 1, .2);
 	drawCube(xuongDoc1, table_pos);
-
 	//xương cạnh phải
 	mat4 xuongDoc2 = Translate(.59, .51, -.20) * Scale(.02, 1, .2);
 	drawCube(xuongDoc2, table_pos);
-
 	//tấm chắn sau kệ
 	//xương ngang trên cùng
 	mat4 xuongNgang1 = Translate(0, .91, -.20) * Scale(1.16, .02, .2);
 	drawCube(xuongNgang1, table_pos);
-
 	//xương ngang thứ 2
 	mat4 xuongNgang2 = Translate(0, .66, -.20) * Scale(1.16, .02, .2);
 	drawCube(xuongNgang2, table_pos);
-
 	//xương ngang thứ 3
 	mat4 xuongNgang3 = Translate(0, .41, -.2) * Scale(1.16, .02, .2);
 	drawCube(xuongNgang3, table_pos);
-
 	//tấm nối xương 1 - 2 
 	mat4 tamNoi1_2 = Translate(0, .785, -.2) * Scale(.02, .23, .2);
 	drawCube(tamNoi1_2, table_pos);
-
 	//tủ mini
 	//hộp tủ sau
 	mat4 hopTuMiniSau = Translate(0, .535, -.29) * Scale(.31, .23, .02);
 	drawCube(hopTuMiniSau, table_pos);
-
 	//hộp tủ trái
 	mat4 hopTuMiniTrai = Translate(-.15, .535, -.2) * Scale(.01, .23, .19);
 	drawCube(hopTuMiniTrai, table_pos);
-
 	//hộp tủ phai
 	mat4 hopTuMiniPhai = Translate(.15, .535, -.2) * Scale(.01, .23, .19);
 	drawCube(hopTuMiniPhai, table_pos);
-
 	//cua tu
 	mat4 cuaTuMini = Translate(.155, .535, -.1) * RotateY(value[1]) * Translate(-.165, 0, 0) * Scale(.31, .23, .01);
 	drawCube(cuaTuMini, table_pos);
 }
+void table() {
+	table_pos = Translate(-2.2, 0.81, 2.5)* RotateY(90);
+	materialColor = RGBtoColor(220, 150, 90);
+	reflexColor = RGBtoColor(220, 150, 90);
+	mirrorReflexColor = RGBtoColor(220, 150, 90);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
+	table_ban4chan();
+	table_nganKeo();
+	table_hopTu();
+	table_keSach();
+}
 
-void keTu() {
+void keTV_tinh_cube(float x, float y, float z,float a,float b,float c) {
+	mat4 instance = Translate(x,y,z) * Scale(a,b,c);
+	drawCube(instance, keTV_pos);
+}
+void keTV_dong_cube(float x, float y, float z, float a, float b, float c) {
+	mat4 instance = Translate(x, y, z) * Translate(0, 0, value[0]) * Scale(a,b,c);
+	drawCube(instance, keTV_pos);
+}
+void keTV_keTu() {
+	// màu đỏ
+	color4 materialColor = RGBtoColor(115, 58, 38);
+	color4 reflexColor = RGBtoColor(115, 58, 38);
+	color4 mirrorReflexColor = RGBtoColor(115, 58, 38);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
 	//phần kệ dưới
 	//mặt trên kệ
-	mat4 mattop_heart = Scale(2, .02, .6);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model*keTV_pos * mattop_heart);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	keTV_tinh_cube(0, 0, 0, 2, 0.02, 0.6);
 	// hộp tủ sau
-	mat4 hopTuSau = Translate(0,-.24,-.29) * Scale(1.96,.46,.02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * hopTuSau);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	keTV_tinh_cube(0, -0.24, -0.29, 1.96, 0.46, 0.02);
 	//hộp tủ trái
-	mat4 hopTuTrai = Translate(-.99,-.24,0) * Scale(.02,.46,.6);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * hopTuTrai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	keTV_tinh_cube(-0.99, -0.24, 0, 0.02, 0.46, 0.6);
 	//hộp tủ phải
-	mat4 hopTuPhai = Translate(.99, -.24, 0) * Scale(.02, .46, .6);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * hopTuPhai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	keTV_tinh_cube(0.99, -0.24, 0, 0.02, 0.46, 0.6);
 	//mặt đáy kệ
-	mat4 matDay = Translate(0,-.47,0) * Scale(2,.02,.6);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * matDay);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	keTV_tinh_cube(0, -0.47, 0, 2, 0.02, 0.6);
 	//tấm giữa ngang
-	mat4 tamGiuaNgang = Translate(0, -.24, 0) * Scale(2, .02, .6);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamGiuaNgang);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//tấm dọc 1
-	mat4 tamDoc1 = Translate(-.40,-.12,.02) * Scale(.02,.22,.58);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamDoc1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//tấm dọc 2
-	mat4 tamDoc2 = Translate(.40, -.12, .02) * Scale(.02, .22, .58);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamDoc2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//tấm dọc 3
-	mat4 tamDoc3 = Translate(-.5, -.36, .02) * Scale(.02, .21, .58);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamDoc3);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//tấm dọc 4
-	mat4 tamDoc4 = Translate(0, -.36, .02) * Scale(.02, .21, .58);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamDoc4);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//tấm dọc 5
-	mat4 tamDoc5 = Translate(.5, -.36, .02) * Scale(.02, .21, .58);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamDoc5);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	keTV_tinh_cube(0, -0.24, 0, 2, 0.02, 0.6);
+	// các tấm dọc 
+	keTV_tinh_cube(-.40, -.12, .02, .02, .22, .58);
+	keTV_tinh_cube(.40, -.12, .02, .02, .22, .58);
+	keTV_tinh_cube(-.5, -.36, .02, .02, .22, .58);
+	keTV_tinh_cube(0, -.36, .02, .02, .22, .58);
+	keTV_tinh_cube(.5, -.36, .02, .02, .22, .58);
+}
+void keTV_nganKeo() {
+	//4 ngăn kéo kệ dưới
+	keTV_dong_cube(-.75, -.45, 0, .47, .02, .58);
+	keTV_dong_cube(-.25, -.45, 0, .47, .02, .58);
+	keTV_dong_cube(.25, -.45, 0, .47, .02, .58);
+	keTV_dong_cube(.75, -.45, 0, .47, .02, .58);
+	 materialColor = RGBtoColor(225, 227, 231);
+	 reflexColor = RGBtoColor(225, 227, 231);
+	 mirrorReflexColor = RGBtoColor(225, 227, 231);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
+	//cửa kéo
+	keTV_dong_cube(-.75, -.36, .29, .49, .25, .02);
+	keTV_dong_cube(-.25, -.36, .29, .49, .25, .02);
+	keTV_dong_cube(.25, -.36, .29, .49, .25, .02);
+	keTV_dong_cube(.75, -.36, .29, .49, .25, .02);
 	
 }
-void keTV_ngan_keo() {
-	//ngan keo 
-	mat4 nganKeo1 = Translate(-.75, -.45, 0) * Translate(0, 0, value[0]) * Scale(.47, .02, .58);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * nganKeo1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 
-	mat4 nganKeo2 = Translate(-.25, -.45, 0) * Translate(0, 0, value[0]) * Scale(.47, .02, .58);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * nganKeo2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
-	mat4 nganKeo3 = Translate(.25, -.45, 0) * Translate(0, 0, value[0]) * Scale(.47, .02, .58);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * nganKeo3);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
-	mat4 nganKeo4 = Translate(.75, -.45, 0) * Translate(0, 0, value[0]) * Scale(.47, .02, .58);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * nganKeo4);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//cua keo
-	mat4 cuaKeo1 = Translate(-.75, -.36, .29) * Translate(0, 0, value[0]) * Scale(.49, .25, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * cuaKeo1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
-	mat4 cuaKeo2 = Translate(-.25, -.36, .29) * Translate(0, 0, value[0]) * Scale(.49, .25, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * cuaKeo2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
-	mat4 cuaKeo3 = Translate(.25, -.36, .29) * Translate(0, 0, value[0]) * Scale(.49, .25, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * cuaKeo3);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
-	mat4 cuaKeo4 = Translate(.75, -.36, .29) * Translate(0, 0, value[0]) * Scale(.49, .25, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * cuaKeo4);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-}
-void tuKinh() {
-	//xuong doc 1
-	mat4 xuongDoc1 = Translate(-.99,.61,-.15) * Scale(.02, 1.2, .3);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * xuongDoc1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//xuong doc 2
-	mat4 xuongDoc2 = Translate(-.63, .61, -.15) * Scale(.02, 1.2, .3);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * xuongDoc2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//xuong doc 3
-	mat4 xuongDoc3 = Translate(.63, .61, -.15) * Scale(.02, 1.2, .3);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * xuongDoc3);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//xuong doc 4
-	mat4 xuongDoc4 = Translate(.99, .61, -.15) * Scale(.02, 1.2, .3);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * xuongDoc4);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//xuong doc sau trai
-	mat4 xuongDoc5 = Translate(-.81,.61,-.29) * Scale(.34, 1.2, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * xuongDoc5);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//xuong doc sau phai
+void keTV_tuKinh() {
+	color4 materialColor = RGBtoColor(115, 58, 38);
+	color4 reflexColor = RGBtoColor(115, 58, 38);
+	color4 mirrorReflexColor = RGBtoColor(115, 58, 38);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
+	//xương dọc lớn từ trái sang
+	keTV_tinh_cube(-.99, .61, -.15, 0.02, 1.2, 0.3); //1
+	keTV_tinh_cube(-.63, .61, -.15, 0.02, 1.2, 0.3); //2
+	keTV_tinh_cube(.63, .61, -.15, 0.02, 1.2, 0.3); //3
+	keTV_tinh_cube(.99, .61, -.15,0.02,1.2,0.3); //4
+	//xương dọc sau tủ trái
+	//keTV_tinh_cube(-0.81,0.61,-0.29,0.34,1.2,0.02);
+	mat4 xuongDoc5 = Translate(-.81, .61, -.29) * Scale(.34, 1.2, .02);
+	drawCube(xuongDoc5, keTV_pos);
+	//xương dọc sau tủ phải
 	mat4 xuongDoc6 = Translate(.81, .61, -.29) * Scale(.34, 1.2, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * xuongDoc6);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	
-	//tam ngang 1
-	mat4 tamNgang1 = Translate(-.81,1.22,-.15) * Scale(.38, .02, .3);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamNgang1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
-	//tam ngang 2
-	mat4 tamNgang2 = Translate(.81, 1.22, -.15) * Scale(.38, .02, .3);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamNgang2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//tam ngang 3
-	mat4 tamNgang3 = Translate(-.81, .92, -.15) * Scale(.34, .01, .28);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamNgang3);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//tam ngang 4
-	mat4 tamNgang4 = Translate(.81, .92, -.15) * Scale(.34, .01, .28);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamNgang4);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//tam ngang 5
-	mat4 tamNgang5 = Translate(-.81, .62, -.15) * Scale(.34, .01, .28);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamNgang5);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//tam ngang 6
-	mat4 tamNgang6 = Translate(.81, .62, -.15) * Scale(.34, .01, .28);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamNgang6);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//tam ngang 7
-	mat4 tamNgang7 = Translate(-.81, .32, -.15) * Scale(.34, .01, .28);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamNgang7);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//tam ngang 8
-	mat4 tamNgang8 = Translate(.81, .32, -.15) * Scale(.34, .01, .28);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamNgang8);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(xuongDoc6, keTV_pos);
+	//tấm ngang
+	keTV_tinh_cube(-.81, 1.22, -.15, .38, 0.2, .3);
+	keTV_tinh_cube(.81, 1.22, -.15, .38, 0.2, .3);
+	keTV_tinh_cube(-.81, .92, -.15, .38, 0.2, .28);
+	keTV_tinh_cube(.81, .92, -.15, .38, 0.2, .28);
+	keTV_tinh_cube(-.81, .62, -.15, .38, 0.2, .28);
+	keTV_tinh_cube(.81, .62, -.15, .38, 0.2, .28);
+	keTV_tinh_cube(-.81, .32, -.15, .38, 0.2, .28);
+	keTV_tinh_cube(.81, .32, -.15, .38, 0.2, .28);
 	//tam ngang giua
 	mat4 tamNgangGiua = Translate(0,1.1,-.15) * Scale(1.28, .02, .2);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * keTV_pos * tamNgangGiua);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(tamNgangGiua, keTV_pos);
 }
 
 void keTV() {
 	keTV_pos = Translate(0, .5, -2);//*RotateY(90);
-	keTu();
-	keTV_ngan_keo();
-	tuKinh();
+	keTV_keTu();
+	keTV_nganKeo();
+	keTV_tuKinh();
 }
 void tuCao_phanTinh() {
+	color4 materialColor = RGBtoColor(255, 255, 172);
+	color4 reflexColor = RGBtoColor(255, 255, 172);
+	color4 mirrorReflexColor = RGBtoColor(255, 255, 172);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
 	//hộp tủ sau
 	mat4 tuCao_hopTuSau = Translate(0,0,-.175) * Scale(0.4, 2, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model *tuCao_pos * tuCao_hopTuSau);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuCao_hopTuSau, tuCao_pos);
 	//hộp tủ trái
 	mat4 tuCao_hopTuTrai = Translate(-.19, 0, 0) * Scale(.02, 2, .35);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_hopTuTrai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuCao_hopTuTrai, tuCao_pos);
 	//hộp tủ phải
 	mat4 tuCao_hopTuPhai = Translate(.19, 0, 0) * Scale(.02, 2, .35);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_hopTuPhai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuCao_hopTuPhai, tuCao_pos);
 	//mặt trên
-	mat4 tuCao_hoptop_heart = Translate(0, .99, 0) * Scale(.36, .02, .35);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_hoptop_heart);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	mat4 tuCao_matTren = Translate(0, .99, 0) * Scale(.36, .02, .35);
+	drawCube(tuCao_matTren, tuCao_pos);
 	//mặt đáy
-	mat4 tuCao_hopDay = Translate(0, -.99, 0) * Scale(.36, .02, .35);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_hopDay);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	mat4 tuCao_matDay = Translate(0, -.99, 0) * Scale(.36, .02, .35);
+	drawCube(tuCao_matDay, tuCao_pos);
 
+	materialColor = RGBtoColor(255, 225, 172);
+	reflexColor = RGBtoColor(255, 225, 172);
+	mirrorReflexColor = RGBtoColor(255, 225, 172);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
 	//tấm ngang
 	mat4 tuCao_tamNgang1 = Translate(0, -.3, 0) * Scale(.36, .02, .35);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_tamNgang1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuCao_tamNgang1, tuCao_pos);
 	//tấm ngang
 	mat4 tuCao_tamNgang2 = Translate(0, -.65, 0) * Scale(.36, .02, .35);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_tamNgang2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(tuCao_tamNgang2, tuCao_pos);
 }
 void tuCao_phanDong() {
 	//ngăn kéo
 	mat4 tuCao_nganKeo1 = Translate(0, -.63, 0)*Translate(0,0,value[0]) * Scale(.36, .02, .35);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_nganKeo1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuCao_nganKeo1, tuCao_pos);
 	mat4 tuCao_nganKeo2 = Translate(0, -.97, 0) * Translate(0, 0, value[0]) * Scale(.36, .02, .35);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_nganKeo2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuCao_nganKeo2, tuCao_pos);
 	//cửa kéo
 	mat4 tuCao_cuaKeo1 = Translate(0, -.48, .18) * Translate(0, 0, value[0]) * Scale(.36, .33, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_cuaKeo1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuCao_cuaKeo1, tuCao_pos);
 	mat4 tuCao_cuaKeo2 = Translate(0, -.82, .18) * Translate(0, 0, value[0]) * Scale(.36, .33, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_cuaKeo2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuCao_cuaKeo2, tuCao_pos);
 	//hộp ngăn kéo
 	//trên
 	mat4 tuCao_hopKeo1 = Translate(-.18, -.55, 0) * Translate(0, 0, value[0]) * Scale(.01, .2, .35);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_hopKeo1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuCao_hopKeo1, tuCao_pos);
 	mat4 tuCao_hopKeo2 = Translate(.18, -.55, 0) * Translate(0, 0, value[0]) * Scale(.01, .2, .35);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_hopKeo2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuCao_hopKeo2, tuCao_pos);
 	//dưới
 	mat4 tuCao_hopKeo3 = Translate(-.18, -.89, 0) * Translate(0, 0, value[0]) * Scale(.01, .2, .35);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_hopKeo3);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuCao_hopKeo3, tuCao_pos);
 	mat4 tuCao_hopKeo4 = Translate(.18, -.89, 0) * Translate(0, 0, value[0]) * Scale(.01, .2, .35);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_hopKeo4);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuCao_hopKeo4, tuCao_pos);
 	//cửa tủ
 	mat4 tuCao_cuaTu = Translate(.2, .35, .18) * RotateY(value[1])*Translate(-.2, 0, 0) * Scale(.4, 1.3, .02);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuCao_pos * tuCao_cuaTu);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(tuCao_cuaTu, tuCao_pos);
 }
 void tuCaoDon() {
 	tuCao_pos = Translate(0, 1, 0);//*RotateY(90);
@@ -638,47 +550,45 @@ void tuCaoDon() {
 }
 void tuTreo_phanTinh()
 {
+	// màu tủ
+	color4 materialColor = RGBtoColor(193, 100, 56);
+	color4 reflexColor = RGBtoColor(193, 100, 56);
+	color4 mirrorReflexColor = RGBtoColor(193, 100, 56);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
+	//hộp tủ bên phải
 	mat4 tuTreo_hopTuTrai = Translate(-.35,.4,0) * Scale(.01, .8, .4);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model *tuTreo_pos* tuTreo_hopTuTrai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuTreo_hopTuTrai, tuTreo_pos);
+	//hộp tủ bên trái
 	mat4 tuTreo_hopTuPhai = Translate(.35, .4, 0) * Scale(.01, .8, .4);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuTreo_pos * tuTreo_hopTuPhai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuTreo_hopTuPhai, tuTreo_pos);
+	//hộp tủ mặt đáy
 	mat4 tuTreo_hopDay = Scale(.7, .01, .4);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuTreo_pos * tuTreo_hopDay);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuTreo_hopDay, tuTreo_pos);
+	//hộp tủ phía sau
 	mat4 tuTreo_hopTuSau = Translate(0, .4, -.2) * Scale(.7, .8, .01);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuTreo_pos * tuTreo_hopTuSau);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(tuTreo_hopTuSau, tuTreo_pos);
 
-	mat4 tuTreo_hopTutop_heart = Translate(0, .8,0) * Scale(.7, .01, .4);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuTreo_pos * tuTreo_hopTutop_heart);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	materialColor = RGBtoColor(199, 189, 181);
+	reflexColor = RGBtoColor(199, 189, 181);
+	mirrorReflexColor = RGBtoColor(199, 189, 181);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
+	//tấm ngăn ngang
 	mat4 tuTreo_tamNoiNgang = Translate(0, .5, 0) * Scale(.69, .01, .39);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuTreo_pos * tuTreo_tamNoiNgang);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuTreo_tamNoiNgang, tuTreo_pos);
+	//tấm ngăn dọc
 	mat4 tuTreo_tamNoiDoc = Translate(0, .25, -.045) * Scale(.01, .5, .3);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuTreo_pos * tuTreo_tamNoiDoc);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(tuTreo_tamNoiDoc, tuTreo_pos);
 }
 void tuTreo_phanDong() {
+	//cửa mở trái
 	mat4 tuTreo_cuaTrai = Translate(-.35, .25, 0.2)*RotateY(-value[1])*Translate(.17,0,0) * Scale(.35, .5, .01);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuTreo_pos * tuTreo_cuaTrai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuTreo_cuaTrai, tuTreo_pos);
+	//cửa mở phải
 	mat4 tuTreo_cuaPhai = Translate(.35, .25, 0.2) * RotateY(value[1]) * Translate(-.17,0,0) * Scale(.35, .5, .01);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuTreo_pos * tuTreo_cuaPhai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuTreo_cuaPhai, tuTreo_pos);
 	//cửa lật lên trên
 	mat4 tuTreo_cuaLat = Translate(0, .8, 0.2) * RotateX(-value[1])*Translate(0,-.15,0) * Scale(.69, .3, .01);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuTreo_pos * tuTreo_cuaLat);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(tuTreo_cuaLat, tuTreo_pos);
 }
 void tuTreo() {
 	// cao 80 rộng 70 sâu 40
@@ -687,113 +597,158 @@ void tuTreo() {
 	tuTreo_phanDong();
 }
 void tuQuanAo_phanTinh() {
+	// màu tủ
+	color4 materialColor = RGBtoColor(142, 84, 23);
+	color4 reflexColor = RGBtoColor(142, 84, 23);
+	color4 mirrorReflexColor = RGBtoColor(142, 84, 23);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
+	//hộp tủ bên trái
 	mat4 tuQuanAo_hopTrai = Translate(-.595, 1.025, 0) * Scale(.01, 1.94, .5);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_hopTrai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuQuanAo_hopTrai, tuQuanAo_pos);
+	//hộp tủ bên phải
 	mat4 tuQuanAo_hopPhai = Translate(.595, 1.025, 0) * Scale(.01, 1.94, .5);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_hopPhai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuQuanAo_hopPhai, tuQuanAo_pos);
+	//tấm ngăn giữa 
 	mat4 tuQuanAo_tamGiua = Translate(-.2, 1.025, 0) * Scale(.01, 1.94, .5);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_tamGiua);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuQuanAo_tamGiua, tuQuanAo_pos);
+	//hộp đáy tủ
 	mat4 tuQuanAo_dayTu = Translate(0, .03, 0) * Scale(1.2, .05, .5);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_dayTu);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuQuanAo_dayTu, tuQuanAo_pos);
+	//nóc
 	mat4 tuQuanAo_nocTu = Translate(0, 1.99, 0) * Scale(1.2, .01, .5);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_nocTu);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuQuanAo_nocTu, tuQuanAo_pos);
+	//hộp tủ phía sau
 	mat4 tuQuanAo_matSau = Translate(0, 1.025, -.25) * Scale(1.18, 1.94, .01);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_matSau);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuQuanAo_matSau, tuQuanAo_pos);
 	//tấm ngang nóc dài
 	mat4 tuQuanAo_tamNgang = Translate(0,1.65, 0) * Scale(1.18, .01, .5);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_tamNgang);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuQuanAo_tamNgang, tuQuanAo_pos);
 	//các tấm ngang hộp tủ trái
+	//màu thanh ngang
+	materialColor = RGBtoColor(199, 189, 181);
+	reflexColor = RGBtoColor(199, 189, 181);
+	mirrorReflexColor = RGBtoColor(199, 189, 181);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
 	mat4 tuQuanAo_tamNgang1 = Translate(-.4, .43, 0) * Scale(.4, .01, .5);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_tamNgang1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuQuanAo_tamNgang1, tuQuanAo_pos);
+	
 	mat4 tuQuanAo_tamNgang2 = Translate(-.4, .83, 0) * Scale(.4, .01, .5);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_tamNgang2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(tuQuanAo_tamNgang2, tuQuanAo_pos);
 
 	mat4 tuQuanAo_tamNgang3 = Translate(-.4, 1.23, 0) * Scale(.4, .01, .5);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_tamNgang3);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuQuanAo_tamNgang3, tuQuanAo_pos);
 	//đòn treo quần áo
 	mat4 tuQuanAo_macTreo = Translate(.2, 1.6, 0) * Scale(.8, .01, .01);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_macTreo);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCylinder(tuQuanAo_hopTrai, tuQuanAo_pos);
+
 }
 void tuQuanAo_phanDong() {
 	//cánh cửa hộp tủ trái
 	mat4 tuQuanAo_cuaHopTrai = Translate(-.6, 1.025, .25)*RotateY(-value[1])*Translate(.2,0,0) * Scale(.39, 1.94, .01);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_cuaHopTrai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//2 cánh tủ chính
+	drawCube(tuQuanAo_cuaHopTrai, tuQuanAo_pos);
+	//cánh tủ chính bên trái
 	mat4 tuQuanAo_cuaTrai = Translate(-.2, 1.025, .25) * RotateY(-value[1]) * Translate(.2, 0, 0) * Scale(.39, 1.94, .01);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_cuaTrai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
+	drawCube(tuQuanAo_cuaHopTrai, tuQuanAo_pos);
+	//cánh tủ chính bên phải
 	mat4 tuQuanAo_cuaPhai = Translate(.595, 1.025, .25) * RotateY(value[1]) * Translate(-.2, 0, 0) * Scale(.39, 1.94, .01);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * tuQuanAo_pos * tuQuanAo_cuaPhai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(tuQuanAo_cuaPhai, tuQuanAo_pos);
 }
 void tuQuanAo() {
 	tuQuanAo_pos = Translate(1, 0, 2.5);// * RotateY(180);
 	tuQuanAo_phanTinh();
 	tuQuanAo_phanDong();
 }
+// Vẽ bàn chữ Z
+void BanchuZ_matban() {
+	// màu đỏ
+	color4 materialColor = RGBtoColor(137, 11, 11);
+	color4 reflexColor = RGBtoColor(137, 11, 11);
+	color4 mirrorReflexColor = RGBtoColor(137, 11, 11);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
+
+	mat4 banChuZ_matban = Scale(1.6, .06, 0.8);
+	drawCube(banChuZ_matban, banChuZ_pos);
+}
+void BanChuZ_matdoc() {
+	color4 materialColor = RGBtoColor(255, 0, 0);
+	color4 reflexColor = RGBtoColor(255, 0, 0);
+	color4 mirrorReflexColor = RGBtoColor(255, 0, 0);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
+
+	mat4 banChuZ_matdoc = Translate(0, -0.15, -0.34) * Scale(1.6, .3, 0.06);
+	drawCube(banChuZ_matdoc, banChuZ_pos);
+
+}
+void BanChuZ_chanban(GLfloat transX, GLfloat transY, GLfloat transZ) {
+	//màu đen
+	color4 materialColor = RGBtoColor(10, 10, 10);
+	color4 reflexColor = RGBtoColor(30, 30, 30);
+	color4 mirrorReflexColor = RGBtoColor(30, 30, 30);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
+
+	mat4 banChuZ_chanban = Translate(transX, transY, transZ) * Scale(0.1, 0.1, 0.6);
+	drawCube(banChuZ_chanban, banChuZ_pos);
+
+}
+void BanChuZ_chancheo(GLfloat transX, GLfloat transY, GLfloat transZ) {
+	//màu đen
+	color4 materialColor = RGBtoColor(10, 10, 10);
+	color4 reflexColor = RGBtoColor(30, 30, 30);
+	color4 mirrorReflexColor = RGBtoColor(30, 30, 30);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
+
+	mat4 banChuZ_chanban = Translate(transX, transY, transZ) * RotateX(63) * Scale(0.1, 0.1, 1.26);
+	drawCube(banChuZ_chanban, banChuZ_pos);
+
+}
+void BanChuZ() {
+
+	BanchuZ_matban();
+	BanChuZ_matdoc();
+
+	BanChuZ_chanban(0.75, -1.2, 0);
+	BanChuZ_chanban(-0.75, -1.2, 0);
+	BanChuZ_chanban(0.75, -0.05, 0);
+	BanChuZ_chanban(-0.75, -0.05, 0);
+
+	BanChuZ_chancheo(0.75, -0.67, 0);
+	BanChuZ_chancheo(-0.75, -0.67, 0);
+
+}
 
 //bối cảnh
-void phong(float width,float height,float depth,float wallWidth) {
-	amb = RGBA(190, 240, 240, 1);
-	dif = RGBA(190, 240, 240, 1);
-	spe = RGBA(190, 240, 240, 1);
-	initMaterial(amb, dif, spe, 1000);
-	mat4 ground = Scale(width, .01, depth);
-	drawCube(ground, model);
+//void store() {
+//	materialColor = RGBtoColor(190, 240, 240, 1);
+//	reflexColor = RGBtoColor(190, 240, 240, 1);
+//	mirrorReflexColor = RGBtoColor(190, 240, 240, 1);
+//	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
+//	//trục oxyz đặt tại chính giữa nền cửa hàng
+//	mat4 ground = Scale(7, .01, 10);
+//	drawCube(ground, model);
+//
+//	//tường trái
+//	mat4 wall1 =Translate(-3.45,2,0)* Scale(0.05, 4, 10);
+//	drawCube(wall1, model);
+//	
+//	//tường phải
+//	mat4 wall2 = Translate(3.45, 2, 0) * Scale(0.05, 4, 10);
+//	drawCube(wall2, model);
+//
+//	//tường sau
+//	mat4 wall3 = Translate(0,2,4.95) * Scale(6.9, 4, 0.05);
+//	drawCube(wall3);
+//	//tường phía trước
+//	//tường lề trái 
+//	mat4 frontWall1 = Translate(-((width/2)-0.5), height/2, depth/2) * Scale(1, height, wallWidth);
+//	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * frontWall1);
+//	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+//	//tường lề phải
+//	mat4 frontWall2 = Translate(1.5, height / 2, depth / 2)* Scale(3, height, wallWidth);
+//	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * frontWall2);
+//	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+//
+//}
 
-	//tường trái
-	mat4 wall1 =Translate(-width/2,height/2,0)* Scale(wallWidth, height, depth);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * wall1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	
-	//tường phải
-	mat4 wall2 = Translate(width/2, height/2, 0) * Scale(wallWidth, height, depth);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * wall2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
-	//tường sau
-	mat4 wall3 = Translate(0, height/2, -depth/2) * Scale(width, height, wallWidth);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * wall3);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
-	//tường phía trước
-	//tường lề trái 
-	mat4 frontWall1 = Translate(-((width/2)-0.5), height/2, depth/2) * Scale(1, height, wallWidth);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * frontWall1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-	//tường lề phải
-	mat4 frontWall2 = Translate(1.5, height / 2, depth / 2)* Scale(3, height, wallWidth);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * frontWall2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
-}
-void cuaVao() {
-	//rộng 2m cao 2,4m
-	//cửa trái
-	
-}
 
 
 void display(void)
@@ -809,12 +764,13 @@ void display(void)
 
 
 	//draw model
-	phong(6,3.5,7,0.05); //bối cảnh cửa hàng rộng 5m, cao 3.5m, sâu 7m, tường dày 5cm
-	table();	//bàn học
-	//keTV();		//kệ tivi
+	//bối cảnh cửa hàng rộng 5m, cao 3.5m, sâu 7m, tường dày 5cm
+	//table();	//bàn học
+	keTV();		//kệ tivi
 	//tuCaoDon(); //tủ cao 
 	//tuTreo();	//tủ treo
 	//tuQuanAo();  //tủ quần áo
+	BanChuZ();
 	
 	glutSwapBuffers();
 
@@ -877,7 +833,7 @@ void keyboard(unsigned char key, int x, int y)
 		if (value[1] < 0) value[1] = 0;
 		glutPostRedisplay();
 		break;
-		//reset view volumn
+	//reset view volumn
 	case ' ':
 		eye = vec3(0, 2, 5);
 		at = vec3(0, 0, 0);
