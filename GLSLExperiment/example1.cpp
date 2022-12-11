@@ -358,34 +358,28 @@ void table() {
 
 	//xương cạnh trái kệ sách
 	mat4 xuongDoc1 = Translate(-.59, .51, -.20) * Scale(.02, 1, .2);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * xuongDoc1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(xuongDoc1, table_pos);
 
 	//xương cạnh phải
 	mat4 xuongDoc2 = Translate(.59, .51, -.20) * Scale(.02, 1, .2);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * xuongDoc2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(xuongDoc2, table_pos);
 
 	//tấm chắn sau kệ
 	//xương ngang trên cùng
 	mat4 xuongNgang1 = Translate(0, .91, -.20) * Scale(1.16, .02, .2);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * xuongNgang1);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(xuongNgang1, table_pos);
 
 	//xương ngang thứ 2
 	mat4 xuongNgang2 = Translate(0, .66, -.20) * Scale(1.16, .02, .2);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * xuongNgang2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(xuongNgang2, table_pos);
 
 	//xương ngang thứ 3
 	mat4 xuongNgang3 = Translate(0, .41, -.2) * Scale(1.16, .02, .2);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * xuongNgang3);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(xuongNgang3, table_pos);
 
 	//tấm nối xương 1 - 2 
 	mat4 tamNoi1_2 = Translate(0, .785, -.2) * Scale(.02, .23, .2);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * tamNoi1_2);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(tamNoi1_2, table_pos);
 
 	//tủ mini
 	//hộp tủ sau
@@ -398,8 +392,7 @@ void table() {
 
 	//hộp tủ phai
 	mat4 hopTuMiniPhai = Translate(.15, .535, -.2) * Scale(.01, .23, .19);
-	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * table_pos * hopTuPhai);
-	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	drawCube(hopTuMiniPhai, table_pos);
 
 	//cua tu
 	mat4 cuaTuMini = Translate(.155, .535, -.1) * RotateY(value[1]) * Translate(-.165, 0, 0) * Scale(.31, .23, .01);
@@ -785,14 +778,21 @@ void phong(float width,float height,float depth,float wallWidth) {
 	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * wall3);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 
-	//phía trước
+	//tường phía trước
+	//tường lề trái 
 	mat4 frontWall1 = Translate(-((width/2)-0.5), height/2, depth/2) * Scale(1, height, wallWidth);
 	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * frontWall1);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
-
-	mat4 frontWall2 = Translate((width / 2) - 0.5, height/2, depth/2) * Scale(1, height, wallWidth);
+	//tường lề phải
+	mat4 frontWall2 = Translate(1.5, height / 2, depth / 2)* Scale(3, height, wallWidth);
 	glUniformMatrix4fv(model_loc, 1, GL_TRUE, model * frontWall2);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+
+}
+void cuaVao() {
+	//rộng 2m cao 2,4m
+	//cửa trái
+	
 }
 
 
