@@ -4,13 +4,14 @@ typedef Angel::vec4 color4;
 typedef Angel::vec4 point4;
 const int numPointsOfCube = 36; //số điểm tạo hlp
 const int numPointsOfCylinder = 96; //số điểm tạo htru
-const int numPointsOfCircle = 192; //số điểm tạo htron
+const int circleNumPoint = 192;
+
 //danh sach cac dinh tam giac
-point4 arrVertices[numPointsOfCube + numPointsOfCylinder ];
+point4 arrVertices[numPointsOfCube + numPointsOfCylinder+ circleNumPoint];
 //danh sach cac color
-color4 arrColors[numPointsOfCube+ numPointsOfCylinder];
+color4 arrColors[numPointsOfCube+ numPointsOfCylinder+ circleNumPoint];
 //danh sach cac vector phap tuyen
-vec3 arrNormals[numPointsOfCube+ numPointsOfCylinder];
+vec3 arrNormals[numPointsOfCube+ numPointsOfCylinder+ circleNumPoint];
 //danh sach cac dinh cua hinh lap phuong
 point4 verticesOfCube[8];
 //danh sach cac color hlp
@@ -116,7 +117,6 @@ void initCylinder()
 		verticesOfCylinder[i * 2 - 1] = point4(x, top_heart, z, 1);
 		verticesOfCylinder[i * 2] = point4(x, bottom_heart, z, 1);
 	}
-
 	// Tâm mặt dưới 
 	verticesOfCylinder[17] = point4(0, bottom_heart, 0, 1);
 
@@ -130,6 +130,7 @@ void initCylinder()
 	colorsOfCylinder[7] = color4(0.0, 1.0, 0.0, 1.0); // xanh lá
 	colorsOfCylinder[8] = color4(0.0, 0.0, 1.0, 1.0); // xanh lam
 	colorsOfCylinder[9] = color4(1.0, 0.0, 1.0, 1.0); // tím
+
 }
 void sideOfCylinder(int a, int b, int c, int d, int color)
 {
@@ -168,13 +169,7 @@ void generateCylinder()
 	sideOfCylinder(12, 11, 13, 14, 5);
 	sideOfCylinder(14, 13, 15, 16, 6);
 	sideOfCylinder(16, 15, 1, 2, 7);
-	/*for (int i = 0; i < 7; i++) {
-		sideOfCylinder(2*(i+1), 2*(i + 1)-1, 2 * (i + 1) +1, 2*i + 4, i);
-	}
-	sideOfCylinder(16, 15, 1, 2, 7);*/
-
 	// 3x8
-	
 	bottomTriange_Cylinder(2, 17, 16, 9);
 	bottomTriange_Cylinder(16, 17, 14, 9);
 	bottomTriange_Cylinder(14, 17, 12, 9);
@@ -183,16 +178,6 @@ void generateCylinder()
 	bottomTriange_Cylinder(8, 17, 6, 9);
 	bottomTriange_Cylinder(6, 17, 4, 9);
 	bottomTriange_Cylinder(4, 17, 2, 9);
-	/*bottomTriange_Cylinder(2, 17, 16, 8);
-
-	for (int i = 6; i >=0; i--) {
-		bottomTriange_Cylinder(2 * i+4, 17, 2 * i + 2, 8);
-	}
-	for (int i = 0; i <= 6; i++) {
-		bottomTriange_Cylinder(2 * (i + 1) - 1, 0, 2 * (i + 1) + 1, 9);
-	}
-	bottomTriange_Cylinder(15, 0, 1, 9);*/
-
 	// 3x8
 	bottomTriange_Cylinder(1, 0, 3, 8);
 	bottomTriange_Cylinder(3, 0, 5, 8);
@@ -202,21 +187,119 @@ void generateCylinder()
 	bottomTriange_Cylinder(11, 0, 13, 8);
 	bottomTriange_Cylinder(13, 0, 15, 8);
 	bottomTriange_Cylinder(15, 0, 1, 8);
+}
+void CylinderCalPointsAndColor()
+{
+	float topHeart = 0.5;
+	float botHeart = -0.5;
+	// Tâm trên
+	verticesOfCylinder[0] = point4(0, topHeart, 0, 1);
+
+	// For để gán cho các đỉnh cạnh bên
+	for (int i = 1; i <= 8; i++)
+	{
+		float banKinh = 0.5;
+		float rad = (i - 1) * 45.0 / 360 * 2 * M_PI;
+		// Tính x va z
+		float x = banKinh * cosf(rad);
+		float z = banKinh * sinf(rad);
+		verticesOfCylinder[i * 2 - 1] = point4(x, topHeart, z, 1);
+		verticesOfCylinder[i * 2] = point4(x, botHeart, z, 1);
+	}
+
+	// Tâm dưới
+	verticesOfCylinder[17] = point4(0, botHeart, 0, 1);
+
+	colorsOfCylinder[0] = color4(1.0, 0.0, 0.0, 1.0); // đỏ
+	colorsOfCylinder[1] = color4(1.0, 1.0, 0.0, 1.0); // vàng
+	colorsOfCylinder[2] = color4(0.0, 1.0, 0.0, 1.0); // xanh lá
+	colorsOfCylinder[3] = color4(0.0, 0.0, 1.0, 1.0); // xanh lam
+	colorsOfCylinder[4] = color4(1.0, 0.0, 1.0, 1.0); // tím
+	colorsOfCylinder[5] = color4(1.0, 0.0, 0.0, 1.0); // đỏ
+	colorsOfCylinder[6] = color4(1.0, 1.0, 0.0, 1.0); // vàng
+	colorsOfCylinder[7] = color4(0.0, 1.0, 0.0, 1.0); // xanh lá
+	colorsOfCylinder[8] = color4(0.0, 0.0, 1.0, 1.0); // xanh lam
+	colorsOfCylinder[9] = color4(1.0, 0.0, 1.0, 1.0); // tím
+}
+
+// Hình trụ
+void DrawCylinderSide(int a, int b, int c, int d, int color)
+{
+
+	vec4 u = verticesOfCylinder[b] - verticesOfCylinder[a];
+	vec4 v = verticesOfCylinder[c] - verticesOfCylinder[b];
+	vec3 normal = normalize(cross(u, v));
+
+	// a -> b -> c -> a -> c -> d
+	arrNormals[Index] = normal; arrColors[Index] = colorsOfCylinder[color]; arrVertices[Index] = verticesOfCylinder[a]; Index++;
+	arrNormals[Index] = normal; arrColors[Index] = colorsOfCylinder[color]; arrVertices[Index] = verticesOfCylinder[b]; Index++;
+	arrNormals[Index] = normal; arrColors[Index] = colorsOfCylinder[color]; arrVertices[Index] = verticesOfCylinder[c]; Index++;
+	arrNormals[Index] = normal; arrColors[Index] = colorsOfCylinder[color]; arrVertices[Index] = verticesOfCylinder[a]; Index++;
+	arrNormals[Index] = normal; arrColors[Index] = colorsOfCylinder[color]; arrVertices[Index] = verticesOfCylinder[c]; Index++;
+	arrNormals[Index] = normal; arrColors[Index] = colorsOfCylinder[color]; arrVertices[Index] = verticesOfCylinder[d]; Index++;
+}
+
+void CreateBottomTriangle(int a, int b, int c, int color)
+{
+	vec4 u = verticesOfCylinder[b] - verticesOfCylinder[a];
+	vec4 v = verticesOfCylinder[c] - verticesOfCylinder[b];
+	vec3 normal = normalize(cross(u, v));
+
+	arrNormals[Index] = normal; arrColors[Index] = colorsOfCylinder[color]; arrVertices[Index] = verticesOfCylinder[a]; Index++;
+	arrNormals[Index] = normal; arrColors[Index] = colorsOfCylinder[color]; arrVertices[Index] = verticesOfCylinder[b]; Index++;
+	arrNormals[Index] = normal; arrColors[Index] = colorsOfCylinder[color]; arrVertices[Index] = verticesOfCylinder[c]; Index++;
+}
+
+void CreateCylinder()
+{
+	//6x8
+	DrawCylinderSide(2, 1, 3, 4, 0);
+	DrawCylinderSide(4, 3, 5, 6, 1);
+	DrawCylinderSide(6, 5, 7, 8, 2);
+	DrawCylinderSide(8, 7, 9, 10, 3);
+	DrawCylinderSide(10, 9, 11, 12, 4);
+	DrawCylinderSide(12, 11, 13, 14, 5);
+	DrawCylinderSide(14, 13, 15, 16, 6);
+	DrawCylinderSide(16, 15, 1, 2, 7);
+	
+
+	//3x8
+	CreateBottomTriangle(2, 17, 16, 9);
+	CreateBottomTriangle(16, 17, 14, 9);
+	CreateBottomTriangle(14, 17, 12, 9);
+	CreateBottomTriangle(12, 17, 10, 9);
+	CreateBottomTriangle(10, 17, 8, 9);
+	CreateBottomTriangle(8, 17, 6, 9);
+	CreateBottomTriangle(6, 17, 4, 9);
+	CreateBottomTriangle(4, 17, 2, 9);
+
+	//3x8
+	CreateBottomTriangle(1, 0, 3, 8);
+	CreateBottomTriangle(3, 0, 5, 8);
+	CreateBottomTriangle(5, 0, 7, 8);
+	CreateBottomTriangle(7, 0, 9, 8);
+	CreateBottomTriangle(9, 0, 11, 8);
+	CreateBottomTriangle(11, 0, 13, 8);
+	CreateBottomTriangle(13, 0, 15, 8);
+	CreateBottomTriangle(15, 0, 1, 8);
 
 	
 }
 
-
-
-
-void initGPUBuffer(void)
-{
+void generateModels() {
 	//hinh lap phuong
 	initCube();
 	generateCube();
 	//hinh tru
-	initCylinder();
-	generateCylinder();
+	//initCylinder();
+	//generateCylinder();
+	CylinderCalPointsAndColor();
+	CreateCylinder();
+}
+
+void initGPUBuffer(void)
+{
+	
 	
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
@@ -242,17 +325,14 @@ color4 RGBtoColor(int R, int G, int B)
 	return color4(convertColor(R), convertColor(G), convertColor(B));
 }
 void processLight() {
-	
 	color4 ambient_product = light_ambient * material_ambient;
 	color4 diffuse_product = light_diffuse * material_diffuse;
 	color4 specular_product = light_specular * material_specular;
-
 	glUniform4fv(glGetUniformLocation(program, "AmbientProduct"), 1, ambient_product);
 	glUniform4fv(glGetUniformLocation(program, "DiffuseProduct"), 1, diffuse_product);
 	glUniform4fv(glGetUniformLocation(program, "SpecularProduct"), 1, specular_product);
 	glUniform4fv(glGetUniformLocation(program, "LightPosition"), 1, light_position);
 	glUniform1f(glGetUniformLocation(program, "Shininess"), material_shininess);
-
 }
 color4 materialColor;
 color4 reflexColor;
@@ -967,6 +1047,7 @@ int main(int argc, char** argv)
 	glutCreateWindow("The Furniture Store");
 
 	glewInit();
+	generateModels();
 	initGPUBuffer();
 	shaderSetup();
 	glutDisplayFunc(display);
