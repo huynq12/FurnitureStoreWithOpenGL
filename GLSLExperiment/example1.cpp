@@ -36,7 +36,7 @@ color4 material_diffuse(1.0, 0.8, 0.0, 1.0);
 color4 material_specular(1.0, 0.8, 0.0, 1.0);
 // Model-view and projection matrices uniform location
 GLuint viewLoc,modelLoc, projectionLoc,program;
-mat4 view,model,tablePos,keTVPos,tuCaoPos,tuTreoPos,tuQuanAoPos, banChuZPos,banTronPos,quayLeTanPos,storePos;
+mat4 view,model,tablePos,keTVPos,tuCaoPos,tuTreoPos,tuQuanAoPos, banChuZPos,banTronPos,quayLeTanPos,storePos,sofaPos;
 GLfloat value[] = { 0,0,0,0 };
 GLfloat door_tx[6] = { 0,0,0,0,0,0 };
 GLfloat cameraRotate[] = { 0,0,0 };
@@ -725,7 +725,7 @@ void tuTreo() {
 	// cao 80 rộng 70 sâu 40
 	
 
-	tuTreoPos = Translate(2.5, 1, -4.8);
+	tuTreoPos = Translate(3, 1, -2.5)*RotateY(-90);
 	tuTreo_phanTinh();
 	tuTreo_phanDong();
 }
@@ -1026,11 +1026,33 @@ void store_wall() {
 }
 void store() {
 	store_wall();
-	//store_door();
+	store_door();
 }
-//--------------------------------------------------
+//------------------------bộ ghế sofa--------------------
+void sofa_cube(float x,float y,float z,float a,float b,float c) {
+	mat4 sofaCube = Translate(x, y, z) * Scale(a, b, c);
+	drawCube(sofaCube, sofaPos);
+}
+void sofa_cylinder(float x, float y, float z, float a, float b, float c) {
+	mat4 sofaCylinder = Translate(x, y, z) * Scale(a, b, c);
+	drawCylinder(sofaCylinder, sofaPos);
+}
+void sofa_ban() {
+	//mặt bàn
+	sofa_cube(0, 0.3, 0, 1.2, 0.3, 0.6);
+	//chân 1
+	sofa_cylinder(-0.55, 0.15, -0.25, 0.1, 0.3, 0.1);
+	//chân 2
+	sofa_cylinder(-0.55, 0.15, 0.25, 0.1, 0.3, 0.1);
+	//chân 3
+	sofa_cylinder(0.55, 0.15, -0.25, 0.1, 0.3, 0.1);
+	//chân 4
+	sofa_cylinder(0.55, 0.15, 0.25, 0.1, 0.3, 0.1);
+}
 
-
+void sofa() {
+	sofa_ban();
+}
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1045,16 +1067,17 @@ void display(void)
 	//draw model
 	//bối cảnh cửa hàng rộng 5m, cao 3.5m, sâu 7m, tường dày 5cm
 	store();
-	table();	//bàn học
-	table2();
-	keTV();		//kệ tivi
-	tuCaoDon(); //tủ cao 
-	tuCaoDon2();
-	tuTreo();	//tủ treo
-	tuQuanAo();  //tủ quần áo
-	BanChuZ();
+	//table();	//bàn học
+	//table2();
+	//keTV();		//kệ tivi
+	//tuCaoDon(); //tủ cao 
+	//tuCaoDon2();
+	//tuTreo();	//tủ treo
+	//tuQuanAo();  //tủ quần áo
+	//BanChuZ();
 	BanTron();
 	QuayLeTan();
+	sofa();
 
 	glutSwapBuffers();
 
@@ -1158,19 +1181,20 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case '2':
 		door_tx[0] -= 0.1;
-		if (door_tx[0] <=4 )
+		if (door_tx[0] <=5 )
 		{
 			door_tx[1] -= 0.1;
-			if (door_tx[1] <=3)
+			if (door_tx[1] <=4)
 			{
 				door_tx[2] -= 0.1;
-				if (door_tx[2] <=2)
+				if (door_tx[2] <=3)
 				{
 					door_tx[3] -= 0.1;
-					if (door_tx[3] <= 1)
+					if (door_tx[3] <= 2)
 					{
 						door_tx[4] -= 0.1;
-						if (door_tx[4] <= 1) {
+						if (door_tx[4] <= 1)
+						{
 							door_tx[5] -= 0.1;
 							if (door_tx[5] <= 0) {
 								door_tx[0] = 0;
