@@ -36,7 +36,7 @@ color4 material_diffuse(1.0, 0.8, 0.0, 1.0);
 color4 material_specular(1.0, 0.8, 0.0, 1.0);
 // Model-view and projection matrices uniform location
 GLuint viewLoc,modelLoc, projectionLoc,program;
-mat4 view,model,tablePos,keTVPos,tuCaoPos,tuTreoPos,tuQuanAoPos, banChuZPos,banTronPos,quayLeTanPos,storePos,sofaPos;
+mat4 view,model,tablePos,keTVPos,tuCaoPos,tuTreoPos,tuQuanAoPos, banChuZPos,banTronPos,quayLeTanPos,storePos,sofa_banPos;
 GLfloat value[] = { 0,0,0,0 };
 GLfloat door_tx[6] = { 0,0,0,0,0,0 };
 GLfloat cameraRotate[] = { 0,0,0 };
@@ -300,8 +300,6 @@ void generateModels() {
 
 void initGPUBuffer(void)
 {
-	
-	
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -541,9 +539,9 @@ void keTV_nganKeo() {
 	keTV_dong_cube(-.25, -.45, 0, .47, .02, .58);
 	keTV_dong_cube(.25, -.45, 0, .47, .02, .58);
 	keTV_dong_cube(.75, -.45, 0, .47, .02, .58);
-	 materialColor = RGBtoColor(225, 227, 231);
-	 reflexColor = RGBtoColor(225, 227, 231);
-	 mirrorReflexColor = RGBtoColor(225, 227, 231);
+	color4 materialColor = RGBtoColor(225, 227, 231);
+	color4 reflexColor = RGBtoColor(225, 227, 231);
+	color4 mirrorReflexColor = RGBtoColor(225, 227, 231);
 	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
 	//cửa kéo
 	keTV_dong_cube(-.75, -.36, .29, .49, .25, .02);
@@ -993,9 +991,9 @@ void door(float x,float y,float z,float tx) {
 	drawCube(door, storePos);
 }
 void store_door() {
-	color4 materialColor = RGBtoColor(240, 240, 50);
-	color4 reflexColor = RGBtoColor(240, 240, 50);
-	color4 mirrorReflexColor = RGBtoColor(240, 240, 50);
+	color4 materialColor = RGBtoColor(255, 11, 11);
+	color4 reflexColor = RGBtoColor(255, 11, 11);
+	color4 mirrorReflexColor = RGBtoColor(255, 11, 11);
 	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
 	//cửa 1 từ trái sang
 	door(-3,2,5,door_tx[0]);
@@ -1032,32 +1030,125 @@ void store_wall() {
 }
 void store() {
 	store_wall();
-	store_door();
+	//store_door();
 }
 //------------------------bộ ghế sofa--------------------
 void sofa_cube(float x,float y,float z,float a,float b,float c) {
 	mat4 sofaCube = Translate(x, y, z) * Scale(a, b, c);
-	drawCube(sofaCube, sofaPos);
+	drawCube(sofaCube, sofa_banPos);
 }
 void sofa_cylinder(float x, float y, float z, float a, float b, float c) {
 	mat4 sofaCylinder = Translate(x, y, z) * Scale(a, b, c);
-	drawCylinder(sofaCylinder, sofaPos);
+	drawCylinder(sofaCylinder, sofa_banPos);
 }
 void sofa_ban() {
-	//mặt bàn
-	sofa_cube(0, 0.3, 0, 1.2, 0.3, 0.6);
+	//mặt bàn 1
+	sofa_cube(0, 0.45, 0, 1.3, 0.05, 0.85);
+	//mặt bàn 2
+	sofa_cube(0, 0.4, 0, 1.2, 0.05, 0.8);
+	//ngan ban
+	sofa_cube(0,0.1 , 0, 1.17, 0.02, 0.77);
 	//chân 1
-	sofa_cylinder(-0.55, 0.15, -0.25, 0.1, 0.3, 0.1);
+	sofa_cylinder(-.57, 0.2, -.37, 0.06, 0.4, 0.06);
 	//chân 2
-	sofa_cylinder(-0.55, 0.15, 0.25, 0.1, 0.3, 0.1);
+	sofa_cylinder(.57, 0.2, -.37, 0.06, 0.4, 0.06);
 	//chân 3
-	sofa_cylinder(0.55, 0.15, -0.25, 0.1, 0.3, 0.1);
+	sofa_cylinder(-.57, 0.2, .37, 0.06, 0.4, 0.06);
 	//chân 4
-	sofa_cylinder(0.55, 0.15, 0.25, 0.1, 0.3, 0.1);
+	sofa_cylinder(.57, 0.2, .37, 0.06, 0.4, 0.06);
 }
-
+mat4 sofa_gheDaiPos;
+void sofa_gheDai_cube(float x, float y, float z, float a, float b, float c) {
+	mat4 instance = Translate(x, y, z) * Scale(a, b, c);
+	drawCube(instance, sofa_gheDaiPos);
+}
+void sofa_gheDai() {
+	//tấm lớn
+	sofa_gheDai_cube(0, 0.15, 0, 2.6, 0.02, 0.6);
+	//tấm lớn đặt lưng
+	sofa_gheDai_cube(0, 0.46, -0.325, 2.4, 0.6, 0.05);
+	//tấm dài chắn trước
+	sofa_gheDai_cube(0, 0.11, 0.325, 2.4, 0.1, 0.05);
+	//--trái
+	//chân 1
+	sofa_gheDai_cube(-1.25, 0.25, -0.325, 0.1, 0.5, 0.05);
+	//chân 2
+	sofa_gheDai_cube(-1.25, 0.25, 0.325, 0.1, 0.5, 0.05);
+	//thanh ngang tì tay
+	sofa_gheDai_cube(-1.25, 0.525, 0, 0.1, 0.05, 0.7);
+	//thanh dọc nhỏ 1
+	sofa_gheDai_cube(-1.25, 0.33, -0.13, 0.03, 0.34, 0.07);
+	//thanh dọc nhỏ 2
+	sofa_gheDai_cube(-1.25, 0.33, 0.13, 0.03, 0.34, 0.07);
+	//--phải
+	//chân 3
+	sofa_gheDai_cube(1.25, 0.25, -0.325, 0.1, 0.5, 0.05);
+	//chân 4
+	sofa_gheDai_cube(1.25, 0.25, 0.325, 0.1, 0.5, 0.05);
+	//thanh ngang tì tay
+	sofa_gheDai_cube(1.25, 0.525, 0, 0.1, 0.05, 0.7);
+	//thanh dọc nhỏ 1
+	sofa_gheDai_cube(1.25, 0.33, -0.13, 0.03, 0.34, 0.07);
+	//thanh dọc nhỏ 2
+	sofa_gheDai_cube(1.25, 0.33, 0.13, 0.03, 0.34, 0.07);
+	//đệm nằm
+	sofa_gheDai_cube(0, 0.21, 0.035, 2.4, 0.1, 0.66);
+	//đệm tựa
+	sofa_gheDai_cube(0, 0.56, -0.25, 2.4, 0.6, 0.1);
+}
+mat4 sofa_gheDonPos;
+void sofa_gheDon_cube(float x, float y, float z, float a, float b, float c) {
+	mat4 instance = Translate(x, y, z) * Scale(a, b, c);
+	drawCube(instance, sofa_gheDonPos);
+}
+void sofa_gheDon() {
+	//tấm lớn
+	sofa_gheDon_cube(0, 0.15, 0, 0.9, 0.02, 0.6);
+	//tấm lớn đặt lưng
+	sofa_gheDon_cube(0, 0.46, -0.325, 0.8, 0.6, 0.05);
+	//tấm dài chắn trước
+	sofa_gheDon_cube(0, 0.11, 0.325, 0.8, 0.1, 0.05);
+	//--trái
+	//chân 1
+	sofa_gheDon_cube(-0.45, 0.25, -0.325, 0.1, 0.5, 0.05);
+	//chân 2
+	sofa_gheDon_cube(-0.45, 0.25, 0.325, 0.1, 0.5, 0.05);
+	//thanh ngang tì tay
+	sofa_gheDon_cube(-0.45, 0.525, 0, 0.1, 0.05, 0.7);
+	//thanh dọc nhỏ 1
+	sofa_gheDon_cube(-0.45, 0.33, -0.13, 0.03, 0.34, 0.07);
+	//thanh dọc nhỏ 2
+	sofa_gheDon_cube(-0.45, 0.33, 0.13, 0.03, 0.34, 0.07);
+	//--phải
+	//chân 3
+	sofa_gheDon_cube(0.45, 0.25, -0.325, 0.1, 0.5, 0.05);
+	//chân 4
+	sofa_gheDon_cube(0.45, 0.25, 0.325, 0.1, 0.5, 0.05);
+	//thanh ngang tì tay
+	sofa_gheDon_cube(0.45, 0.525, 0, 0.1, 0.05, 0.7);
+	//thanh dọc nhỏ 1
+	sofa_gheDon_cube(0.45, 0.33, -0.13, 0.03, 0.34, 0.07);
+	//thanh dọc nhỏ 2
+	sofa_gheDon_cube(0.45, 0.33, 0.13, 0.03, 0.34, 0.07);
+	//đệm nằm
+	sofa_gheDon_cube(0, 0.21, 0.035, 0.8, 0.1, 0.66);
+	//đệm tựa
+	sofa_gheDon_cube(0, 0.56, -0.25, 0.8, 0.6, 0.1);
+}
 void sofa() {
+	sofa_banPos = Translate(-1.6, 0, -3) * RotateY(90);
+	
+	color4 materialColor = RGBtoColor(243, 229, 245);
+	color4 reflexColor = RGBtoColor(243, 229, 245);
+	color4 mirrorReflexColor = RGBtoColor(243, 229, 245);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
 	sofa_ban();
+	sofa_gheDaiPos = Translate(-3, 0, -3)*RotateY(90);
+	sofa_gheDai();
+	sofa_gheDonPos = Translate(-1.6, 0, -4.5);
+	sofa_gheDon();
+	sofa_gheDonPos = Translate(-1.6, 0, -1.5) * RotateY(180);
+	sofa_gheDon();
 }
 void display(void)
 {
@@ -1081,7 +1172,7 @@ void display(void)
 	//tuTreo();	//tủ treo
 	//tuQuanAo();  //tủ quần áo
 	//BanChuZ();
-	BanTron();
+	//BanTron();
 	QuayLeTan();
 	sofa();
 
@@ -1219,7 +1310,7 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	//reset view volumn
 	case ' ':
-		eye = vec3(0, 1.5, 8);
+		eye = vec3(0, 1.5, 2);
 		at = vec3(0, 0, 0);
 		up = vec3(0, 1, 0);
 		cameraRotate[1] = 90;
