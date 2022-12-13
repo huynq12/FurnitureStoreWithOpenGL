@@ -309,11 +309,13 @@ void initGPUBuffer(void)
 	GLuint buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(arrVertices) + sizeof(arrColors)+sizeof(arrNormals), NULL, GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(arrVertices) + sizeof(arrColors) + sizeof(arrNormals), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(arrVertices) + sizeof(arrNormals), NULL, GL_STATIC_DRAW);
 
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(arrVertices), arrVertices);
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(arrVertices), sizeof(arrColors), arrColors);
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(arrVertices) + sizeof(arrColors), sizeof(arrNormals), arrNormals);
+	//glBufferSubData(GL_ARRAY_BUFFER, sizeof(arrVertices), sizeof(arrColors), arrColors);
+	//glBufferSubData(GL_ARRAY_BUFFER, sizeof(arrVertices) + sizeof(arrColors), sizeof(arrNormals), arrNormals);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(arrVertices), sizeof(arrNormals), arrNormals);
 
 
 }
@@ -356,21 +358,25 @@ void shaderSetup() {
 	glEnableVertexAttribArray(loc_vPosition);
 	glVertexAttribPointer(loc_vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
 
-	GLuint loc_vColor = glGetAttribLocation(program, "vColor");
-	glEnableVertexAttribArray(loc_vColor);
-	glVertexAttribPointer(loc_vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(arrVertices)));
+	//GLuint loc_vColor = glGetAttribLocation(program, "vColor");
+	//glEnableVertexAttribArray(loc_vColor);
+	//glVertexAttribPointer(loc_vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(arrVertices)));
 
 	GLuint loc_vNormal = glGetAttribLocation(program, "vNormal");
 	glEnableVertexAttribArray(loc_vNormal);
-	glVertexAttribPointer(loc_vNormal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(arrVertices) + sizeof(arrColors)));
+	//glVertexAttribPointer(loc_vNormal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(arrVertices) + sizeof(arrColors)));
+	glVertexAttribPointer(loc_vNormal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(arrVertices)));
+
 
 	// Retrieve transformation uniform variable locations
 	viewLoc = glGetUniformLocation(program, "View");
 	modelLoc = glGetUniformLocation(program, "Model");
 	projectionLoc = glGetUniformLocation(program, "Projection");
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glShadeModel(GL_FLAT);
-	glClearColor(255,240,200,1);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
 void drawCube(mat4 instance,mat4 localPos)
 {
