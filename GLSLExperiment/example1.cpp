@@ -36,7 +36,8 @@ color4 material_diffuse(1.0, 0.8, 0.0, 1.0);
 color4 material_specular(1.0, 0.8, 0.0, 1.0);
 // Model-view and projection matrices uniform location
 GLuint viewLoc,modelLoc, projectionLoc,program;
-mat4 view,model,tablePos,keTVPos,tuCaoPos,tuTreoPos,tuQuanAoPos, banChuZPos,banTronPos,quayLeTanPos,storePos,sofa_banPos;
+mat4 view,model,tablePos,keTVPos,tuCaoPos,tuTreoPos,tuQuanAoPos, banChuZPos,banTronPos,
+quayLeTanPos,storePos,sofa_banPos, robotPos;
 GLfloat value[] = { 0,0,0,0 };
 GLfloat door_tx[6] = { 0,0,0,0,0,0 };
 GLfloat cameraRotate[] = { 0,0,0 };
@@ -1030,7 +1031,7 @@ void store_wall() {
 }
 void store() {
 	store_wall();
-	//store_door();
+	store_door();
 }
 //------------------------bộ ghế sofa--------------------
 void sofa_cube(float x,float y,float z,float a,float b,float c) {
@@ -1150,6 +1151,112 @@ void sofa() {
 	sofa_gheDonPos = Translate(-1.6, 0, -1.5) * RotateY(180);
 	sofa_gheDon();
 }
+void robotCube(float x,float y,float z,float a,float b,float c) {
+	mat4 instance = Translate(x, y, z) * Scale(a, b, c);
+	drawCube(instance, robotPos);
+}
+void robotCylinder(float x, float y, float z, float a, float b, float c) {
+	mat4 instance = Translate(x, y, z) * Scale(a, b, c);
+	drawCylinder(instance, robotPos);
+}
+void robot_chan() {
+	//bàn chân trái
+	robotCube(-0.1, 0.05, 0.05, 0.15, 0.1, 0.2);
+	//bàn chân phải
+	robotCube(0.1, 0.05, 0.05, 0.15, 0.1, 0.2);
+	//cẳng chân trái
+	robotCylinder(-0.1, 0.35, 0, 0.1, 0.5, 0.1);
+	//cẳng chân phải
+	robotCylinder(0.1, 0.35, 0, 0.1, 0.5, 0.1);
+	//đầu gối
+	robotCylinder(-0.1, 0.35, 0, 0.12, 0.05, 0.12);
+	robotCylinder(0.1, 0.35, 0, 0.14, 0.05, 0.14);
+}
+mat4 robotAct;
+void robot_than() {
+	mat4 robot_than = Translate(0, 0.85, 0) * Scale(0.4, 0.5, 0.3);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_than);
+	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+}
+void robot_vai() {
+	mat4 robot_vai1 = Translate(-0.27, 1.03, 0)*RotateZ(90) * Scale(0.15, 0.15, 0.15);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_vai1);
+	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
+
+	mat4 robot_vai2 = Translate(0.27, 1.03, 0)*RotateZ(90) * Scale(0.15, 0.15, 0.15);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_vai2);
+	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
+}
+void robot_tay() {
+	mat4 robot_tayTrai = Translate(-0.27, 0.8, 0) * Scale(0.08, 0.35, 0.08);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_tayTrai);
+	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
+
+	mat4 robot_tayPhai = Translate(0.27, 0.8, 0) * Scale(0.08, 0.35, 0.08);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_tayPhai);
+	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
+}
+void robot_banTay() {
+	mat4 robot_banTayTrai = Translate(-0.27, 0.6, 0) * Scale(0.1, 0.1, 0.1);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_banTayTrai);
+	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+
+	mat4 robot_banTayPhai = Translate(0.27, 0.6, 0) * Scale(0.1, 0.1, 0.1);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_banTayPhai);
+	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+}
+void robot_dau() {
+	//cổ
+	mat4 robot_phanCo = Translate(0, 1.13, 0) * Scale(0.2, 0.06, 0.2);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_phanCo);
+	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
+	//đầu
+	mat4 robot_phanDau = Translate(0, 1.36, 0) * Scale(0.5, 0.4, 0.3);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_phanDau);
+	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	//mắt
+	mat4 robot_matTrai = Translate(-0.1, 1.4, 0.15)*RotateX(90) * Scale(0.1, 0.04, 0.1);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_matTrai);
+	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
+	//mắt
+	mat4 robot_matPhai = Translate(0.1, 1.4, 0.15)*RotateX(90) * Scale(0.1, 0.04, 0.1);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_matPhai);
+	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
+	//tai
+	mat4 robot_tai1 = Translate(-0.25, 1.4, 0)*RotateZ(90) * Scale(0.15, 0.1, 0.15);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_tai1);
+	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
+	//tai
+	mat4 robot_tai2 = Translate(0.25, 1.4, 0)*RotateZ(90) * Scale(0.15, 0.1, 0.15);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_tai2);
+	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
+	//miệng
+	mat4 robot_mieng = Translate(0, 1.25, 0.15) * Scale(0.3, 0.1, 0.05);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_mieng);
+	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
+	//ăng ten
+	mat4 robot_angTen = Translate(0, 1.76, 0) * Scale(0.02, 0.2, 0.02);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_angTen);
+	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
+	//đế ăng ten
+	mat4 robot_deAngTen = Translate(0, 1.61, 0) * Scale(0.1, 0.1, 0.1);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_deAngTen);
+	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
+	//đầu ăng ten
+	mat4 robot_dauAngTen = Translate(0, 1.88, 0) * Scale(0.05, 0.05, 0.05);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_dauAngTen);
+	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
+}
+void robot() {
+	robotPos = Translate(-3, 0, 4.5);// *RotateY(90);
+	robot_chan();
+	robotAct =Translate(0,0.6,0)*RotateX(value[2]) * Translate(0, -0.6, 0);
+	robot_than();
+	robot_vai();
+	robot_tay();
+	robot_banTay();
+	robot_dau();
+}
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1174,7 +1281,8 @@ void display(void)
 	//BanChuZ();
 	//BanTron();
 	QuayLeTan();
-	sofa();
+	//sofa();
+	robot();
 
 	glutSwapBuffers();
 
@@ -1245,6 +1353,16 @@ void keyboard(unsigned char key, int x, int y)
 		if (value[1] < 0) value[1] = 0;
 		glutPostRedisplay();
 		break;
+	/*case 'r':
+		value[2] += 5;
+		if (value[2] >= 45) value[2] = 45;
+		glutPostRedisplay();
+		break;
+	case 'R':
+		value[2] -= 5;
+		if (value[2] <=0) value[2] = 0;
+		glutPostRedisplay();*/
+		break;
 	case '1':
 		door_tx[0] += 0.1;
 		if (door_tx[0] >= 1)
@@ -1258,6 +1376,8 @@ void keyboard(unsigned char key, int x, int y)
 					door_tx[3] += 0.1;
 					if (door_tx[3] >= 1)
 					{
+						value[2] += 2.5;
+						if (value[2] >= 45) value[2] = 45;
 						door_tx[4] += 0.1;
 						if (door_tx[4] >= 1) {
 							door_tx[5] += 0.1;
@@ -1289,6 +1409,8 @@ void keyboard(unsigned char key, int x, int y)
 					door_tx[3] -= 0.1;
 					if (door_tx[3] <= 2)
 					{
+						value[2] -= 2.5;
+						if (value[2] <= 0) value[2] = 0;
 						door_tx[4] -= 0.1;
 						if (door_tx[4] <= 1)
 						{
