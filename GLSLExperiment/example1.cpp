@@ -43,6 +43,7 @@ GLfloat cameraRotate[] = { 0,0,0 };
 //Lookat function
 GLfloat l = -0.5, r = 0.5, bottom = -0.5, top = 0.5, zNear = 0.5, zFar = 10;
 //camera controller 
+vec3 eye = vec3(0, 1.5, 8);
 vec3 at = vec3(0, 0, 0);
 vec3 up = vec3(0, 1, 0);
 GLfloat t = 0.05;
@@ -346,6 +347,14 @@ void initMaterial(color4 a, color4 b, color4 c, float d) {
 	material_diffuse = c;
 	material_shininess = d;
 	processLight();
+}
+void initMaterial(int a, int b, int c, float d) {
+	material_ambient = RGBtoColor(a, b, c);
+	material_diffuse = RGBtoColor(a, b, c);
+	light_specular = RGBtoColor(a, b, c);
+	material_shininess = d;
+	processLight();
+
 }
 
 void shaderSetup() {
@@ -1433,6 +1442,7 @@ void robotCylinder(float x, float y, float z, float a, float b, float c) {
 	drawCylinder(instance, robotPos);
 }
 void robot_chan() {
+	initMaterial(49, 105, 133, 150);
 	//bàn chân trái
 	robotCube(-0.1, 0.05, 0.05, 0.15, 0.1, 0.2);
 	//bàn chân phải
@@ -1447,11 +1457,16 @@ void robot_chan() {
 }
 mat4 robotAct;
 void robot_than() {
+	color4 materialColor = RGBtoColor(49, 105, 133);
+	color4 reflexColor = RGBtoColor(49, 105, 133);
+	color4 mirrorReflexColor = RGBtoColor(49, 105, 133);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
 	mat4 robot_than = Translate(0, 0.85, 0) * Scale(0.4, 0.5, 0.3);
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_than);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 }
 void robot_vai() {
+	
 	mat4 robot_vai1 = Translate(-0.27, 1.03, 0) * RotateZ(90) * Scale(0.15, 0.15, 0.15);
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_vai1);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
@@ -1488,6 +1503,10 @@ void robot_dau() {
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_phanDau);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 	//mắt
+	color4 materialColor = RGBtoColor(207, 98, 14);
+	color4 reflexColor = RGBtoColor(207, 98, 14);
+	color4 mirrorReflexColor = RGBtoColor(207, 98, 14);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 150);
 	mat4 robot_matTrai = Translate(-0.1, 1.4, 0.15) * RotateX(90) * Scale(0.1, 0.04, 0.1);
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_matTrai);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
@@ -1504,10 +1523,18 @@ void robot_dau() {
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_tai2);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
 	//miệng
+	materialColor = RGBtoColor(207, 98, 14);
+	reflexColor = RGBtoColor(207, 98, 14);
+	mirrorReflexColor = RGBtoColor(207, 98, 14);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
 	mat4 robot_mieng = Translate(0, 1.25, 0.15) * Scale(0.3, 0.1, 0.05);
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_mieng);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 	//ăng ten
+	materialColor = RGBtoColor(11, 13, 10);
+	reflexColor = RGBtoColor(11, 13, 10);
+	mirrorReflexColor = RGBtoColor(11, 13, 10);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
 	mat4 robot_angTen = Translate(0, 1.76, 0) * Scale(0.02, 0.2, 0.02);
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_angTen);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
@@ -1521,7 +1548,7 @@ void robot_dau() {
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
 }
 void robot() {
-	robotPos = Translate(-3, 0, 4.5);// *RotateY(90);
+	robotPos = Translate(-2, 0, 3.5);// *RotateY(90);
 	robot_chan();
 	robotAct = Translate(0, 0.6, 0) * RotateX(value[2]) * Translate(0, -0.6, 0);
 	robot_than();
@@ -1536,7 +1563,7 @@ void storeCube(float x, float y, float z, float a, float b, float c) {
 	drawCube(storeCube, storePos);
 }
 void door(float x, float y, float z, float tx) {
-	mat4 door = Translate(x, y, z) * Translate(tx, 0, 0) * Scale(1, 4, 0.02);
+	mat4 door = Translate(x, y, z) * Translate(tx, 0, 0) * Scale(1, 3.98, 0.02);
 	drawCube(door, storePos);
 }
 void store_door() {
@@ -1547,15 +1574,15 @@ void store_door() {
 	//cửa 1 từ trái sang
 	door(-3, 2, 5, door_tx[0]);
 	//cửa 2 từ trái sang
-	door(-2, 2, 5, door_tx[1]);
+	door(-2, 2, 4.99, door_tx[1]);
 	//cửa 3 từ trái sang
-	door(-1, 2, 5, door_tx[2]);
+	door(-1, 2, 4.98, door_tx[2]);
 	//cửa 4 từ trái sang
-	door(0, 2, 5, door_tx[3]);
+	door(0, 2, 4.97, door_tx[3]);
 	//cửa 5 từ trái sang
-	door(1, 2, 5, door_tx[4]);
+	door(1, 2, 4.96, door_tx[4]);
 	//cửa 5 từ trái sang
-	door(2, 2, 5, door_tx[5]);
+	door(2, 2, 4.95, door_tx[5]);
 }
 void store_wall() {
 	//trục oxyz đặt tại chính giữa nền cửa hàng
@@ -1589,7 +1616,6 @@ void store() {
 }
 //--------------------------------------------------
 
-vec3 eye = vec3(0, 1.5, 6);
 
 void display(void)
 {
