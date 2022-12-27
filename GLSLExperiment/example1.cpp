@@ -29,7 +29,6 @@ color4 light_specular(1.0, 1.0, 1.0, 1.0);
 color4 ambient_product;
 color4 diffuse_product;
 color4 specular_product;
-
 float material_shininess;
 color4 material_ambient(1.0, 0.0, 1.0, 1.0);
 color4 material_diffuse(1.0, 0.8, 0.0, 1.0);
@@ -38,23 +37,30 @@ color4 material_specular(1.0, 0.8, 0.0, 1.0);
 GLuint viewLoc, modelLoc, projectionLoc, program;
 mat4 view, model, tablePos, keTVPos, tuCaoPos, tuTreoPos, tuQuanAoPos, banChuZPos, banTronPos, quayLeTanPos, storePos, robotPos;
 GLfloat value[] = { 0,0,0,0 };
-GLfloat door_tx[6] = { 0,0,0,0,0,0 };
-GLfloat cameraRotate[] = { 0,0,0 };
-//Lookat function
+//frustum function
 GLfloat l = -0.5, r = 0.5, bottom = -0.5, top = 0.5, zNear = 0.5, zFar = 10;
 //camera controller 
-vec3 eye = vec3(0, 1.5, 8);
+vec3 eye = vec3(0, 2, 8);
 vec3 at = vec3(0, 0, 0);
 vec3 up = vec3(0, 1, 0);
 GLfloat t = 0.05;
+GLfloat cameraRotate[] = { 0,0,0 };
 vec3 direction = normalize(vec3(cosf(DegreesToRadians * cameraRotate[0]) * abs(sinf(DegreesToRadians * cameraRotate[1])),
 	sinf(DegreesToRadians * cameraRotate[0]),
 	cosf(DegreesToRadians * cameraRotate[2]) * abs(cosf(DegreesToRadians * cameraRotate[1]))));
 vec3 cameraRight = normalize(cross(direction, up));
-
+//control model
+GLfloat door_tx[6] = { 0,0,0,0,0,0 };
+//bàn học
+float table_x=3,table_y=0.81,table_z=1,table_keo, table_moCuaTu,tableSpin=-90;
+//kệ tv
+float keTV_x=0.1,keTV_y=0.5, keTV_z=-4.5,keTV_keo=0,keTV_xoay=0;
+bool nguoc=false;
+//robot
+bool robotMode = false;
+float robot_x = -2, robot_y = 0, robot_z = 3.5, robot_headSpin,robot_baseSpin, robot_baseHi;
 //----------------------------------------------------------------------
-// quad generates two triangles for each face and assigns colors
-// to the vertices
+#pragma region Phần kỹ thuật 
 int Index = 0;
 void initCube()
 {
@@ -387,6 +393,9 @@ void shaderSetup() {
 	glShadeModel(GL_FLAT);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
+
+#pragma endregion
+
 void drawCube(mat4 instance, mat4 localPos)
 {
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * localPos * instance);
@@ -400,6 +409,7 @@ void drawCylinder(mat4 instance, mat4 localPos)
 
 //----------------------------------------------------------------------
 //-----------------Bàn học------------------------
+#pragma region Bàn học
 void chanBan(float x, float y, float z) {
 	mat4 chan = Translate(x, y, z) * Scale(.06, .8, .06);
 	drawCube(chan, tablePos);
@@ -427,10 +437,10 @@ void table_nganKeo() {
 	mat4 tuNganKeo = Translate(-.55, -.06, 0) * Scale(.02, .1, .48);
 	drawCube(tuNganKeo, tablePos);
 	//ngăn kéo chính
-	mat4 nganKeo = Translate(-.27, -.1, 0) * Translate(0, 0, value[0]) * Scale(.54, .02, .58);
+	mat4 nganKeo = Translate(-.27, -.1, 0) * Translate(0, 0, table_keo) * Scale(.54, .02, .58);
 	drawCube(nganKeo, tablePos);
 	//cửa ngăn kéo phía trước
-	mat4 cuaNganKeo = Translate(-.27, -.075, .28) * Translate(0, 0, value[0]) * Scale(.54, .15, .02);
+	mat4 cuaNganKeo = Translate(-.27, -.075, .28) * Translate(0, 0, table_keo) * Scale(.54, .15, .02);
 	drawCube(cuaNganKeo, tablePos);
 }
 void table_hopTu() {
@@ -445,7 +455,7 @@ void table_hopTu() {
 	mat4 hopTuDay = Translate(.27, -.7, 0) * Scale(.55, .02, .56);
 	drawCube(hopTuDay, tablePos);
 	//cửa tủ có thể mở góc 90
-	mat4 cuaTu = Translate(.53, -.36, .29) * RotateY(value[1]) * Translate(-.27, 0, 0) * Scale(.55, .7, .02);
+	mat4 cuaTu = Translate(.53, -.36, .29) * RotateY(table_moCuaTu) * Translate(-.27, 0, 0) * Scale(.55, .7, .02);
 	drawCube(cuaTu, tablePos);
 }
 void table_keSach() {
@@ -482,8 +492,9 @@ void table_keSach() {
 	mat4 cuaTuMini = Translate(.155, .535, -.1) * RotateY(value[1]) * Translate(-.165, 0, 0) * Scale(.31, .23, .01);
 	drawCube(cuaTuMini, tablePos);
 }
+#pragma endregion
 void table() {
-	tablePos = Translate(3, 0.81, 1) * RotateY(-90);
+	tablePos = Translate(table_x,table_y,table_z) * RotateY(tableSpin);
 	materialColor = RGBtoColor(220, 150, 90);
 	reflexColor = RGBtoColor(220, 150, 90);
 	mirrorReflexColor = RGBtoColor(220, 150, 90);
@@ -510,12 +521,13 @@ void table2() {
 	table_hopTu();
 }
 //--------------------kệ tv---------------------------------------------
+#pragma region Kệ TV
 void keTV_tinh_cube(float x, float y, float z, float a, float b, float c) {
 	mat4 instance = Translate(x, y, z) * Scale(a, b, c);
 	drawCube(instance, keTVPos);
 }
 void keTV_dong_cube(float x, float y, float z, float a, float b, float c) {
-	mat4 instance = Translate(x, y, z) * Translate(0, 0, value[0]) * Scale(a, b, c);
+	mat4 instance = Translate(x, y, z) * Translate(0, 0, keTV_keo) * Scale(a, b, c);
 	drawCube(instance, keTVPos);
 }
 void keTV_keTu() {
@@ -579,18 +591,20 @@ void keTV_tuKinh() {
 	mat4 xuongDoc6 = Translate(.81, .61, -.29) * Scale(.34, 1.2, .02);
 	drawCube(xuongDoc6, keTVPos);
 	//tấm ngang
-	keTV_tinh_cube(-.81, 1.22, -.15, .38, 0.2, .3);
-	keTV_tinh_cube(.81, 1.22, -.15, .38, 0.2, .3);
-	keTV_tinh_cube(-.81, .92, -.15, .38, 0.2, .28);
-	keTV_tinh_cube(.81, .92, -.15, .38, 0.2, .28);
-	keTV_tinh_cube(-.81, .62, -.15, .38, 0.2, .28);
-	keTV_tinh_cube(.81, .62, -.15, .38, 0.2, .28);
-	keTV_tinh_cube(-.81, .32, -.15, .38, 0.2, .28);
-	keTV_tinh_cube(.81, .32, -.15, .38, 0.2, .28);
+	keTV_tinh_cube(-.81, 1.22, -.15, .38, 0.02, .3);
+	keTV_tinh_cube(.81, 1.22, -.15, .38, 0.02, .3);
+	keTV_tinh_cube(-.81, .92, -.15, .38, 0.02, .28);
+	keTV_tinh_cube(.81, .92, -.15, .38, 0.02, .28);
+	keTV_tinh_cube(-.81, .62, -.15, .38, 0.02, .28);
+	keTV_tinh_cube(.81, .62, -.15, .38, 0.02, .28);
+	keTV_tinh_cube(-.81, .32, -.15, .38, 0.02, .28);
+	keTV_tinh_cube(.81, .32, -.15, .38, 0.02, .28);
 	//tam ngang giua
 	mat4 tamNgangGiua = Translate(0, 1.1, -.15) * Scale(1.28, .02, .2);
 	drawCube(tamNgangGiua, keTVPos);
 }
+#pragma endregion
+
 void veTV() {
 	color4 materialColor = RGBtoColor(125, 125, 125);
 	color4 reflexColor = RGBtoColor(125, 125, 125);
@@ -614,14 +628,15 @@ void veTV() {
 
 }
 void keTV() {
-	keTVPos = Translate(0.1, 0.7, -4.5) * Scale(1.5, 1.5, 1.5);
+	keTVPos =Translate(keTV_x,keTV_y,keTV_z)*RotateY(keTV_xoay);
 
 	keTV_keTu();
 	keTV_nganKeo();
 	keTV_tuKinh();
 	veTV();
 }
-//--------------------tủ cao 1---------------------------------------------
+//--------------------tủ cao ---------------------------------------------
+#pragma region Tủ cao
 void tuCao_phanTinh() {
 	color4 materialColor = RGBtoColor(255, 255, 172);
 	color4 reflexColor = RGBtoColor(255, 255, 172);
@@ -680,6 +695,8 @@ void tuCao_phanDong() {
 	mat4 tuCao_cuaTu = Translate(.2, .35, .18) * RotateY(value[1]) * Translate(-.2, 0, 0) * Scale(.4, 1.3, .02);
 	drawCube(tuCao_cuaTu, tuCaoPos);
 }
+#pragma endregion
+
 void tuCaoDon() {
 	tuCaoPos = Translate(3.2, 1, 4) * RotateY(-90);
 
@@ -716,6 +733,7 @@ void tuCaoDon2() {
 	tuCao_phanDong();
 }
 //-----------------------tủ treo------------------------------------
+#pragma region Tủ treo
 void tuTreo_phanTinh()
 {
 	// màu tủ
@@ -770,6 +788,8 @@ void tuTreo() {
 	tuTreo_phanTinh();
 	tuTreo_phanDong();
 }
+#pragma endregion
+
 
 void tuTreo2() {
 	// cao 80 rộng 70 sâu 40
@@ -781,6 +801,7 @@ void tuTreo2() {
 }
 
 //-------------------------tủ quần áo--------------------------------
+#pragma region Tủ quần áo
 void tuQuanAo_phanTinh() {
 	// màu tủ
 	color4 materialColor = RGBtoColor(142, 84, 23);
@@ -844,7 +865,10 @@ void tuQuanAo() {
 	tuQuanAo_phanTinh();
 	tuQuanAo_phanDong();
 }
+#pragma endregion
+
 //--------------------- Vẽ bàn chữ Z---------------------------
+#pragma region Bàn chữ Z
 void BanchuZ_matban(float x, float y, float z) {
 	// màu vang
 	color4 materialColor = RGBtoColor(255, 11, 11);
@@ -903,7 +927,10 @@ void BanChuZ() {
 
 
 }
+#pragma endregion
+
 //--------------------------Vẽ bàn tròn---------------------------
+#pragma region Bàn tròn
 void BanTron_matban(float R, float G, float B) {
 	// màu đỏ
 	color4 materialColor = RGBtoColor(R, G, B);
@@ -948,6 +975,8 @@ void BanTron() {
 	banTron_gheBanTron(0, 0.25, -1, 220, 30, 166);
 	banTron_gheBanTron(0, 0.25, 1, 220, 30, 166);
 }
+#pragma endregion
+
 
 void BanTron2() {
 	banTronPos = Translate(1, 0, 2);
@@ -962,6 +991,7 @@ void BanTron2() {
 }
 //---------------------quầy lễ tân----------------------
 
+#pragma region Quầy lễ tân
 void theLeTan(GLfloat x, GLfloat z) {
 	color4 materialColor = RGBtoColor(0, 0, 0);
 	color4 reflexColor = RGBtoColor(0, 0, 0);
@@ -1041,6 +1071,8 @@ void QuayLeTan() {
 	BanLeTan();
 	mayTinh();
 }
+#pragma endregion
+
 
 //Vẽ đồng hồ
 mat4 dongHoPos;
@@ -1079,6 +1111,7 @@ void DongHo() {
 }
 
 // Vẽ khung tranh
+#pragma region Tranh trang trí
 mat4 khungTranhPos;
 void khungTranh() {
 
@@ -1208,8 +1241,11 @@ void Tranh6() {
 
 	ndTranh();
 }
+#pragma endregion
+
 
 // Vẽ đèn treo tường
+#pragma region Đèn treo tường
 mat4 denTuongPos;
 void initDenTuong() {
 
@@ -1263,6 +1299,8 @@ void DenTuong6() {
 	denTuongPos = Translate(-3.43, 3.2, -2.2) * RotateY(180) * RotateZ(90);
 	initDenTuong();
 }
+#pragma endregion
+
 
 //------------------------bộ ghế sofa--------------------
 mat4 sofa_banPos;
@@ -1433,6 +1471,7 @@ void sofa() {
 	sofa_gheDonPos = Translate(-1.6, 0, 0) * RotateY(180);
 	sofa_gheDon();
 }
+#pragma region Robot
 void robotCube(float x, float y, float z, float a, float b, float c) {
 	mat4 instance = Translate(x, y, z) * Scale(a, b, c);
 	drawCube(instance, robotPos);
@@ -1441,8 +1480,8 @@ void robotCylinder(float x, float y, float z, float a, float b, float c) {
 	mat4 instance = Translate(x, y, z) * Scale(a, b, c);
 	drawCylinder(instance, robotPos);
 }
+
 void robot_chan() {
-	initMaterial(49, 105, 133, 150);
 	//bàn chân trái
 	robotCube(-0.1, 0.05, 0.05, 0.15, 0.1, 0.2);
 	//bàn chân phải
@@ -1465,8 +1504,9 @@ void robot_than() {
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_than);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 }
+mat4 robot_handAct;
 void robot_vai() {
-	
+
 	mat4 robot_vai1 = Translate(-0.27, 1.03, 0) * RotateZ(90) * Scale(0.15, 0.15, 0.15);
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_vai1);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
@@ -1493,6 +1533,7 @@ void robot_banTay() {
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_banTayPhai);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 }
+mat4 robot_headAct;
 void robot_dau() {
 	//cổ
 	mat4 robot_phanCo = Translate(0, 1.13, 0) * Scale(0.2, 0.06, 0.2);
@@ -1500,7 +1541,7 @@ void robot_dau() {
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
 	//đầu
 	mat4 robot_phanDau = Translate(0, 1.36, 0) * Scale(0.5, 0.4, 0.3);
-	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_phanDau);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct* robot_headAct * robot_phanDau);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 	//mắt
 	color4 materialColor = RGBtoColor(207, 98, 14);
@@ -1508,19 +1549,19 @@ void robot_dau() {
 	color4 mirrorReflexColor = RGBtoColor(207, 98, 14);
 	initMaterial(materialColor, reflexColor, mirrorReflexColor, 150);
 	mat4 robot_matTrai = Translate(-0.1, 1.4, 0.15) * RotateX(90) * Scale(0.1, 0.04, 0.1);
-	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_matTrai);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_headAct * robot_matTrai);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
 	//mắt
 	mat4 robot_matPhai = Translate(0.1, 1.4, 0.15) * RotateX(90) * Scale(0.1, 0.04, 0.1);
-	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_matPhai);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_headAct * robot_matPhai);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
 	//tai
 	mat4 robot_tai1 = Translate(-0.25, 1.4, 0) * RotateZ(90) * Scale(0.15, 0.1, 0.15);
-	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_tai1);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_headAct * robot_tai1);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
 	//tai
 	mat4 robot_tai2 = Translate(0.25, 1.4, 0) * RotateZ(90) * Scale(0.15, 0.1, 0.15);
-	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_tai2);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_headAct * robot_tai2);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
 	//miệng
 	materialColor = RGBtoColor(207, 98, 14);
@@ -1528,7 +1569,7 @@ void robot_dau() {
 	mirrorReflexColor = RGBtoColor(207, 98, 14);
 	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
 	mat4 robot_mieng = Translate(0, 1.25, 0.15) * Scale(0.3, 0.1, 0.05);
-	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_mieng);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_headAct * robot_mieng);
 	glDrawArrays(GL_TRIANGLES, 0, numPointsOfCube);
 	//ăng ten
 	materialColor = RGBtoColor(11, 13, 10);
@@ -1536,28 +1577,32 @@ void robot_dau() {
 	mirrorReflexColor = RGBtoColor(11, 13, 10);
 	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
 	mat4 robot_angTen = Translate(0, 1.76, 0) * Scale(0.02, 0.2, 0.02);
-	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_angTen);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_headAct * robot_angTen);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
 	//đế ăng ten
 	mat4 robot_deAngTen = Translate(0, 1.61, 0) * Scale(0.1, 0.1, 0.1);
-	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_deAngTen);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_headAct * robot_deAngTen);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
 	//đầu ăng ten
 	mat4 robot_dauAngTen = Translate(0, 1.88, 0) * Scale(0.05, 0.05, 0.05);
-	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_dauAngTen);
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, model * robotPos * robotAct * robot_headAct * robot_dauAngTen);
 	glDrawArrays(GL_TRIANGLES, 36, numPointsOfCylinder);
 }
 void robot() {
 	robotPos = Translate(-2, 0, 3.5);// *RotateY(90);
 	robot_chan();
-	robotAct = Translate(0, 0.6, 0) * RotateX(value[2]) * Translate(0, -0.6, 0);
+	robotAct = Translate(0, 0.6, 0) * RotateX(robot_baseHi)*RotateY(robot_baseSpin) * Translate(0, -0.6, 0);
 	robot_than();
 	robot_vai();
 	robot_tay();
 	robot_banTay();
+	robot_headAct = RotateY(robot_headSpin);
 	robot_dau();
 }
+#pragma endregion
+
 //-------------------cửa hàng-----------------------
+#pragma region Cửa hàng
 void storeCube(float x, float y, float z, float a, float b, float c) {
 	mat4 storeCube = Translate(x, y, z) * Scale(a, b, c);
 	drawCube(storeCube, storePos);
@@ -1615,14 +1660,53 @@ void store() {
 	store_door();
 }
 //--------------------------------------------------
+//-----------------bảng hiệu--------------------------
+mat4 bangHieuPos;
+void bangHieu_chu() {
+	//chữ G
+	mat4 gngang1 = Translate(-0.4, 1.5, 0.05) * Scale(0.5, 0.1, 0.1);
+	drawCube(gngang1, bangHieuPos);
+	mat4 gdoc1 = Translate(-0.65, 1, 0.05) * Scale(0.1, 1, 0.1);
+	drawCube(gdoc1, bangHieuPos);
+	mat4 gngang2 = Translate(-0.4, 0.5, 0.05) * Scale(0.5, 0.1, 0.1);
+	drawCube(gngang2, bangHieuPos);
+	mat4 gdoc2 = Translate(-0.15, 0.75, 0.05) * Scale(0.1, 0.5, 0.1);
+	drawCube(gdoc2, bangHieuPos);
+	mat4 gngang3 = Translate(-0.15, 1, 0.05) * Scale(0.3, 0.1, 0.1);
+	drawCube(gngang3, bangHieuPos);
+	//số 3
+	mat4 ngang1 = Translate(0.4, 1.5, 0.05) * Scale(0.5, 0.1, 0.1);
+	drawCube(ngang1, bangHieuPos);
+	mat4 ngang2 = Translate(0.4, 1, 0.05) * Scale(0.5, 0.1, 0.1);
+	drawCube(ngang2, bangHieuPos);
+	mat4 ngang3 = Translate(0.4, 0.5, 0.05) * Scale(0.5, 0.1, 0.1);
+	drawCube(ngang3, bangHieuPos);
+	mat4 doc = Translate(0.65, 1, 0.05) * Scale(0.1, 1, 0.1);
+	drawCube(doc, bangHieuPos);
+}
+void bangHieu() {
+	color4 materialColor = RGBtoColor(49, 105, 133);
+	color4 reflexColor = RGBtoColor(49, 105, 133);
+	color4 mirrorReflexColor = RGBtoColor(49, 105, 133);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 1000);
+	bangHieuPos = Translate(0, 4, 5);
+	mat4 bangHieu = Translate(0, 1, 0) * Scale(7, 2, 0.02);
+	drawCube(bangHieu, bangHieuPos);
+	//chữ
+	materialColor = RGBtoColor(240, 15, 15);
+	reflexColor = RGBtoColor(240, 15, 15);
+	mirrorReflexColor = RGBtoColor(240, 15, 15);
+	initMaterial(materialColor, reflexColor, mirrorReflexColor, 150);
+	bangHieu_chu();
+
+}
+#pragma endregion
 
 
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//at = vec3(cosf(DegreesToRadians *cameraRotate[0]),0,cosf(DegreesToRadians*cameraRotate[2])) + eye;
 	at = direction + eye;
-	//view = LookAt(eye, at, up);
 	view = RotateY(cameraRotate[1]) * LookAt(eye, at, up);
 	glUniformMatrix4fv(viewLoc, 1, GL_TRUE, view);
 
@@ -1632,10 +1716,11 @@ void display(void)
 	//draw model
 	//bối cảnh cửa hàng rộng 7m, cao 4m, sâu 10m, tường dày 5cm
 	store();
+	bangHieu();
 	table();
 	table2();
 	keTV();		
-	tuCaoDon();
+	/*tuCaoDon();
 	tuCaoDon2();
 	tuTreo();	
 	tuTreo2();
@@ -1644,22 +1729,22 @@ void display(void)
 	BanTron();
 	BanTron2();
 	QuayLeTan();
-	DongHo();
+	DongHo();*/
 	
 
-	Tranh1();
+	/*Tranh1();
 	Tranh2();
 	Tranh3();
 	Tranh4();
 	Tranh5();
-	Tranh6();
+	Tranh6();*/
 
-	DenTuong1();
+	/*DenTuong1();
 	DenTuong2();
 	DenTuong3();
 	DenTuong4();
 	DenTuong5();
-	DenTuong6();
+	DenTuong6();*/
 
 	robot();
 	sofa();
@@ -1675,64 +1760,54 @@ void keyboard(unsigned char key, int x, int y)
 
 	switch (key) {
 
-	case 'q': case 'Q':
+	 case 'Q':
 		exit(EXIT_SUCCESS);
 		break;
+#pragma region camera controller
 	case 'y':
 		cameraRotate[1] += 5;
-		glutPostRedisplay();
 		break;
 	case 'Y':
 		cameraRotate[1] -= 5;
-		glutPostRedisplay();
 		break;
 	case 'u':
 		eye += vec3(0, 0.05, 0);
-		glutPostRedisplay();
 		break;
 	case 'U':
 		eye += vec3(0, -0.05, 0);
-		glutPostRedisplay();
 		break;
-
 	case 'w':
 		eye -= direction;
-		glutPostRedisplay();
 		break;
 	case 's':
 		eye += direction;
-		glutPostRedisplay();
 		break;
 	case 'a':
 		eye += cameraRight;
-		glutPostRedisplay();
 		break;
 	case 'd':
 		eye -= cameraRight;
-		glutPostRedisplay();
 		break;
+#pragma endregion
 
 		//control door 
 	case 'k':
 		value[0] += .05;
 		if (value[0] > .3) value[0] = .3;
-		glutPostRedisplay();
 		break;
 	case 'K':
 		value[0] -= .05;
 		if (value[0] < 0) value[0] = 0;
-		glutPostRedisplay();
 		break;
 	case 'c':
 		value[1] += 5;
 		if (value[1] > 90) value[1] = 90;
-		glutPostRedisplay();
 		break;
 	case 'C':
 		value[1] -= 5;
 		if (value[1] < 0) value[1] = 0;
-		glutPostRedisplay();
 		break;
+#pragma region Door control
 	case '1':
 		door_tx[0] += 0.1;
 		if (door_tx[0] >= 1)
@@ -1746,8 +1821,8 @@ void keyboard(unsigned char key, int x, int y)
 					door_tx[3] += 0.1;
 					if (door_tx[3] >= 1)
 					{
-						value[2] += 2.5;
-						if (value[2] >= 45) value[2] = 45;
+						robot_baseHi += 2.5;
+						if (robot_baseHi >= 45) value[2] = 45;
 						door_tx[4] += 0.1;
 						if (door_tx[4] >= 1) {
 							door_tx[5] += 0.1;
@@ -1758,13 +1833,15 @@ void keyboard(unsigned char key, int x, int y)
 								door_tx[3] = 3;
 								door_tx[4] = 2;
 								door_tx[5] = 1;
+								robot_baseHi -= 5;
+								if (robot_baseHi <= 0)
+									robot_baseHi = 0;
 							}
 						}
 					}
 				}
 			}
 		}
-		glutPostRedisplay();
 		break;
 	case '2':
 		door_tx[0] -= 0.1;
@@ -1779,8 +1856,8 @@ void keyboard(unsigned char key, int x, int y)
 					door_tx[3] -= 0.1;
 					if (door_tx[3] <= 2)
 					{
-						value[2] -= 2.5;
-						if (value[2] <= 0) value[2] = 0;
+						robot_baseHi -= 2.5;
+						if (robot_baseHi <= 0) robot_baseHi = 0;
 						door_tx[4] -= 0.1;
 						if (door_tx[4] <= 1)
 						{
@@ -1798,17 +1875,59 @@ void keyboard(unsigned char key, int x, int y)
 				}
 			}
 		}
-		glutPostRedisplay();
-		break;		//reset view volumn
+		break;
+#pragma endregion
+
+	//chế độ ngược, xoay chiều di chuyển
+	case '3': nguoc = !nguoc;
+		break;
+	// điều khiển bàn học
+	case 'i': table_x+= (0.1 * (nguoc ? -1 : 1));
+		break;
+	case 'o': table_z += (0.1 * (nguoc ? -1 : 1));
+		break;
+	case 'p': tableSpin += (5 * (nguoc ? -1 : 1));
+		break;
+	case '[': table_keo += (0.1 * (nguoc ? -1 : 1));
+		if (table_keo >= 0.3) table_keo = 0.3;
+		if (table_keo <= 0) table_keo = 0;
+		break;
+	case ']': table_moCuaTu += (2 * (nguoc ? -1 : 1));
+		if (table_moCuaTu >= 90) table_moCuaTu = 90;
+		if (table_moCuaTu <= 0) table_moCuaTu = 0;
+		break;
+	//điều khiển kệ tv
+	case '{': keTV_x += (0.1 *(nguoc ? -1 : 1));
+		break;
+	case '}': keTV_z +=  (0.1 * (nguoc ? -1 : 1)) ;
+		break;
+	case '/': keTV_keo +=  (0.02 * (nguoc ? -1 : 1)) ;
+		break;
+	case '|': keTV_xoay += (0.1 * (nguoc ? -1 : 1)) ;
+		break;
+	//robot control
+	case 'h':
+		robot_headSpin += (5 * (nguoc ? -1 : 1)) ;
+		break;
+	case 'b':
+		robot_baseSpin +=  (5 * (nguoc ? -1 : 1));
+		break;
+	case 'n':
+		robot_baseHi += 2.5 * (nguoc ? -1 : 1);
+		if (robot_baseHi >= 45) robot_baseHi = 45;
+		if (robot_baseHi <= 0) robot_baseHi = 0;
+		break;
+	//reset view volumn
 	case ' ':
-		eye = vec3(0, 1.5, 8);
+		eye = vec3(0, 2, 8);
 		at = vec3(0, 0, 0);
 		up = vec3(0, 1, 0);
 		cameraRotate[1] = 90;
-		glutPostRedisplay();
+		
 		break;
-
 	}
+	glutPostRedisplay();
+
 }
 
 void reshape(int width, int height)
