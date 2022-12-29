@@ -1789,7 +1789,6 @@ void keyboard(unsigned char key, int x, int y)
 		eye -= cameraRight;
 		break;
 #pragma endregion
-
 		//control door 
 	case 'k':
 		value[0] += .05;
